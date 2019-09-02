@@ -5,8 +5,8 @@ import compose from 'recompose/compose';
 import { BaseContainer } from '../../helpers';
 import { LoginController } from './Login.controller';
 import { showLoadingAction, closeLoadingAction } from '../../store/actions';
-
-
+import { GoogleLogin } from 'react-google-login';
+import FacebookLogin from 'react-facebook-login';
 
 const actions = { showLoadingAction, closeLoadingAction };
 
@@ -65,6 +65,8 @@ class Login extends BaseContainer {
     const { errors } = this.state;
     const { handleChange, handleSubmit } = this.controller;
 
+    console.log('in red', process.env)
+
     return (
       <div className={classes.wrapper}>
         <div>
@@ -94,6 +96,19 @@ class Login extends BaseContainer {
             <Button id='new-user' onClick={() => history.push('new-user')}>
               or create a new user
             </Button>
+            <GoogleLogin
+              clientId="478083504438-eqa86sfd32fab97o705l2d6sprroc8j8.apps.googleusercontent.com"
+              buttonText="Login"
+              onSuccess={res => console.log(res)}
+              onFailure={res => console.log(res)}
+              cookiePolicy={'single_host_origin'}
+            />
+            <FacebookLogin
+              appId="995398630792024"
+              autoLoad={true}
+              fields="name,email,picture"
+              onClick={(e) => console.log('clicked', e)}
+              callback={res => console.log('fb res', res)} />
           </form>
         </div>
       </div>
