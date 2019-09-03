@@ -1,9 +1,8 @@
 const nodemailer = require('nodemailer');
+const { MAILER_SENDER, MAILER_PASS } = require('./global');
 
 module.exports = class Mailer {
-  constructor(config) {
-    this.config = config;
-
+  constructor() {
     this.sendMail = this.sendMail.bind(this);
   }
 
@@ -11,15 +10,15 @@ module.exports = class Mailer {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'mlpdummy@gmail.com',
-        pass: '10%d10=1'
+        user: MAILER_SENDER,
+        pass: MAILER_PASS
       }
     });
   }
 
   sendMail({ to, subject, html }) {
     const mailOptions = {
-      from: 'mlpdummy@gmail.com',
+      from: MAILER_SENDER,
       to,
       subject,
       html

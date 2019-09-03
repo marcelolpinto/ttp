@@ -11,7 +11,7 @@ const {
   authenticateValidation,
   changePasswordValidation
 } = require('../../validation/user.validation');
-const { JWT_SECRET } = require('../../global');
+const { JWT_SECRET, BASE_URL } = require('../../global');
 
 class UsersController {
   constructor({ users, meals, mailer }) {
@@ -65,7 +65,7 @@ class UsersController {
         this.mailer.sendMail({
           to: body.email,
           subject: 'TTP - Validate your account',
-          html: `<p>Click <a href="http://localhost:3000/validate?_id=${response._id}token=${token}">here</a> to activate your account.</p>`
+          html: `<p>Click <a href="${BASE_URL}/validate?_id=${response._id}token=${token}">here</a> to activate your account.</p>`
         })
 
         res.send(genResponse(codes.OK, response));
