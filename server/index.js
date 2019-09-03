@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MongoDB = require('./mongo');
 const Routes = require('./Routes');
+const Mailer = require('./Mailer');
 
 const app = express();
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -20,7 +21,10 @@ app.use(function(req, res, next) {
 const mongo = new MongoDB();
 mongo.init();
 
-const router = new Routes({ app, mongo });
+const mailer = new Mailer({});
+mailer.init();
+
+const router = new Routes({ app, mongo, mailer });
 router.init();
 
 app.listen(3001, () =>

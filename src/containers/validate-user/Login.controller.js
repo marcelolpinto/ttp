@@ -35,7 +35,7 @@ export class LoginController extends BaseController {
     if(!validated) return this.toState({ errors });
 
     const auth = await this.usersRepo.authenticate({ email, password });
-    if(auth.err) return;
+    if(auth.err) return toast(auth.err.msg);
 
     const { user: { _id, role }, token } = auth.data;
     window.localStorage.setItem('token', token);
@@ -99,6 +99,12 @@ export class LoginController extends BaseController {
       else {
 
       }
+    }
+  }
+
+  _handleUserError(code) {
+    switch(code) {
+      case 404: 
     }
   }
 }

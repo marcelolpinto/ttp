@@ -63,14 +63,12 @@ class Login extends BaseContainer {
   render() {
     const { classes, history } = this.props;
     const { errors } = this.state;
-    const { handleChange, handleSubmit } = this.controller;
-
-    console.log('in red', process.env)
+    const { handleChange, handleSubmit, handleGoogleSignIn, handleFacebookSignIn } = this.controller;
 
     return (
       <div className={classes.wrapper}>
         <div>
-          <h1>Calories Counter</h1>
+          <h1>TTP Properties</h1>
           <form onSubmit={handleSubmit}>
             <TextField
               error={!!errors.email}
@@ -96,19 +94,19 @@ class Login extends BaseContainer {
             <Button id='new-user' onClick={() => history.push('new-user')}>
               or create a new user
             </Button>
+            <br/>
             <GoogleLogin
               clientId="478083504438-eqa86sfd32fab97o705l2d6sprroc8j8.apps.googleusercontent.com"
               buttonText="Login"
-              onSuccess={res => console.log(res)}
+              onSuccess={handleGoogleSignIn}
               onFailure={res => console.log(res)}
               cookiePolicy={'single_host_origin'}
             />
             <FacebookLogin
               appId="995398630792024"
-              autoLoad={true}
               fields="name,email,picture"
               onClick={(e) => console.log('clicked', e)}
-              callback={res => console.log('fb res', res)} />
+              callback={handleFacebookSignIn} />
           </form>
         </div>
       </div>

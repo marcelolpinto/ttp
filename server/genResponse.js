@@ -1,10 +1,12 @@
 function genResponse(status, data, details) {
   return {
     success: !!data,
-    status: {
+    code: status.code,
+    message: status.msg,
+    err: {
       code: status.code,
       msg: status.msg,
-      details
+      toast: status.toast || false
     },
     data
   };

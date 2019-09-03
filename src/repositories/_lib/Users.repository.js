@@ -21,6 +21,10 @@ export class UsersRepository extends BaseRepository {
     return this.get(`/users/${userId}`);    
   }
 
+  fetchByEmail(userEmail) {
+    return this.get(`/users/email?email=${userEmail}`);    
+  }
+
   create(body) {
     return this.post(`/users`, body);
   }

@@ -21,6 +21,7 @@ import { ManagerDashboard } from './containers/manager-dashboard';
 import { ManagerCreateUser } from './containers/manager-create-user';
 import { Settings } from './containers/settings';
 import { UserDashboard } from './containers/user-dashboard';
+import { ValidateUser } from './containers/validate-user';
 import { Modal, Loading } from './components';
 import { NotFound } from './NotFound';
 
@@ -55,6 +56,7 @@ class App extends Component {
           <Switch>
             <Route exact path='/' component={Login} />
             <Route exact path='/new-user' component={CreateUser} />
+            <Route exact path='/validate' component={ValidateUser} />
             <Private>
               <Switch>
                 <Route exact path='/settings' component={Settings} />

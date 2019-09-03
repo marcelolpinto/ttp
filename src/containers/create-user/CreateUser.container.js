@@ -57,7 +57,6 @@ class CreateUser extends BaseContainer {
     email: '',
     password: '',
     confirm_password: '',
-    max_calories: '',
 
     errors: {}
   }
@@ -89,15 +88,6 @@ class CreateUser extends BaseContainer {
               className='text-input'
               value={this.state.email}
               onChange={handleChange}
-            />
-            <TextField
-              error={!!errors.max_calories}
-              helperText={errors.max_calories}
-              id='max_calories'
-              label='Expected calories/day'
-              className='text-input'
-              value={this.state.max_calories}
-              onChange={e => handleChange(e, 'number')}
             />
             <TextField
               error={!!errors.password}

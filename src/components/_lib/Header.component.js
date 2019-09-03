@@ -41,7 +41,7 @@ class Header extends Component {
 
     return (
       <div className={classes.wrapper}>
-        <h3 onClick={homeClick}>Calories Counter</h3>
+        <h3 onClick={homeClick}>TTP Properties</h3>
         <div>
           <p className='welcome'>Welcome{self ? `, ${self.name}` : ''}</p>
           <Button

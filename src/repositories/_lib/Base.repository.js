@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const ROOT_URL = 'http://localhost:3001/api/v1';
 
@@ -21,21 +22,20 @@ export class BaseRepository {
 	}
 
 	async resolvePromise(promise) {
-		var data;
-		var err;
-
+    let data;
+		let err;
+    
 		try {
       const result = await promise;
-			if(result.data.success) data = result.data.data;
+      if(result.data.success) data = result.data.data;
+      
+			else if(result.data) err = result.data.msg;
 			
-			else if(result.data) err = result.data.status;
-			else err = { code: 502, msg: "unknown_err" };
+			else err = { code: 502, msg: "Unkown error." };
 		
-		} catch(e) { 
-			err = {
-				code: 502,
-				msg: e
-			};
+		} catch({ response }) {
+      err = response.data.err || response.data;
+      if(err.toast) toast(err.msg);
 		}
 
 		return { err, data };

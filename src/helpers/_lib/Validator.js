@@ -15,7 +15,6 @@ export default class Validator {
   static createUser(values) {
     const errors = {};
     const required = ['name', 'email', 'password', 'confirm_password', 'role'];
-    if(values.role === 'user') required.push('max_calories');
 
     if(!this._emailFormat(values.email)) errors.email = 'Invalid e-mail.'
     if(values.password.length < 3) errors.password = 'Password should contain at least 3 characters.'
@@ -34,7 +33,6 @@ export default class Validator {
   static editUser(values) {
     const errors = {};
     const required = ['name', 'email', 'role'];
-    if(values.role === 'user') required.push('max_calories');
     
     if(!this._emailFormat(values.email)) errors.email = 'Invalid e-mail.'
 
@@ -71,19 +69,6 @@ export default class Validator {
       errors.password = "Passwords doesn't match."
       errors.confirm_password = "Passwords doesn't match."
     }
-
-    for(let i of required) {
-			if(!values[i]) errors[i] = 'Required.';
-    }
-    
-    return { errors, validated: !Object.keys(errors).length };
-  }
-  
-  static meal(values) {
-    const errors = {};
-    const required = ['name', 'calories', 'date'];
-
-    if(!Date.parse(values.date)) errors.date = 'Invalid date.'
 
     for(let i of required) {
 			if(!values[i]) errors[i] = 'Required.';

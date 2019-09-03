@@ -29,22 +29,20 @@ export class CreateUserController extends BaseController {
     e.preventDefault();
     const { showLoadingAction, history, closeLoadingAction } = this.getProps();
     const { name, email, max_calories, password, confirm_password } = this.getState();
-    const values = { name, email, max_calories, password, confirm_password };
+    const values = { name, email, max_calories, password, confirm_password, origin: 'form' };
     
     values.role = 'user';
     const { validated, errors } = Validator.createUser(values);
     if(!validated) return this.toState({ errors });
 
+    delete values.confirm_password;
+
     showLoadingAction();
     const user = await this.usersRepo.create(values);
     closeLoadingAction();
 
-    if(user.err) {
-      if(user.err.msg.startsWith('E11000')) toast('This e-mail is already taken.');
-      else toast(user.err.msg);
-    }
-    else {
-      toast(`User created successfully. You can now login with ${email}`);
+    if(!user.err) {
+      toast(`User created successfully. You have to verify your account in your email to login.`);
       history.push('/');
     }
   }
