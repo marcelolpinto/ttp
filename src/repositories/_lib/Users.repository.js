@@ -9,6 +9,10 @@ export class UsersRepository extends BaseRepository {
     return this.post('/users/authenticate', body);
   }
 
+  authenticateSocialMedia(body) {
+    return this.post('/users/authenticate-sm', body);
+  }
+
   validate(user_id, token) {
     return this.get(`/users/validate?user_id=${user_id}&token=${token}`);
   }
@@ -33,7 +37,15 @@ export class UsersRepository extends BaseRepository {
     return this.put(`/users/${userId}`, body);
   }
 
+  uploadImage(userId, body) {
+    return this.put(`/users/${userId}/upload-image`, body);
+  }
+
   remove(userId) {
     return this.delete(`/users/${userId}`);
+  }
+
+  sendInvitation(body, token) {
+    return this.post(`/users/invite?token=${token}`, body)
   }
 }

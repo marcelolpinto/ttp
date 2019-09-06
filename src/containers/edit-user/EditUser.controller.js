@@ -8,11 +8,48 @@ export class EditUserController extends BaseController  {
 
     this.usersRepo = new UsersRepository();
     
+    this.handleUpload = this.handleUpload.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
   }
+
+  handleUpload(e) {
+    e.preventDefault();
+    const { history, showLoadingAction, closeLoadingAction } = this.getProps();
+    const { user } = this.getState();
+		const { files, id } = e.target;
+    if(!files.length) return;
+    if(!files[0].type.startsWith('image')) {
+      return toast('The file must be an image.')
+    }
+    
+		const reader = new FileReader();
+		reader.readAsDataURL(files[0]);
+		reader.onload = async () => {
+      showLoadingAction();
+      const to = Array.prototype.slice.call(files).map(file => {
+        return {
+          data: file,
+					src: URL.createObjectURL(file),
+					id: URL.createObjectURL(file) + file.name
+				};
+      });
+      
+    	const form = new FormData();
+      form.append('image', new Blob([to[0].data]), to[0].data.name);
+
+      const promise = await this.usersRepo.uploadImage(user.id, form);
+      if(!promise.err) {
+        this.toState({ imageUrl: '' });
+        this.toState({ imageUrl: promise.data.imageUrl });
+      }
+
+      closeLoadingAction();
+      
+		};
+	}
 
   handleChange(e, format) {
     const state = this.getState();
@@ -47,11 +84,7 @@ export class EditUserController extends BaseController  {
     const userPromise = await this.usersRepo.update(user.id, values);
     closeLoadingAction();
 
-    if(userPromise.err) {
-      if(userPromise.err.msg.startsWith('E11000')) toast('This e-mail is already taken.');
-      else toast(userPromise.err.msg);
-    }
-    else {
+    if(!userPromise.err) {
       const newUsers = users.update(user.id, values);
       setUsersAction(newUsers);
       toast(`User updated successfully.`);
@@ -61,7 +94,7 @@ export class EditUserController extends BaseController  {
 
   _hasChanged(user, values) {
     let res = false;
-    ['name', 'email', 'max_calories', 'role'].forEach(key => {
+    ['name', 'email', 'role'].forEach(key => {
       if(user[key] !== values[key]) res = true;
     })
     return res;

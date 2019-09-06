@@ -11,13 +11,6 @@ export {
 } from './_lib/loading.actions';
 
 export {
-  SET_MEALS,
-  SELECT_MEAL,
-  setMealsAction,
-  selectMealAction
-} from './_lib/meals.actions';
-
-export {
   OPEN_MODAL,
   CLOSE_MODAL,
   openModalAction,
@@ -25,11 +18,11 @@ export {
 } from './_lib/modal.actions';
 
 export {
-  SET_USER_MEALS,
-  SELECT_USER_MEAL,
-  setUserMealsAction,
-  selectUserMealAction
-} from './_lib/userMeals.actions';
+  SET_PROPERTIES,
+  SELECT_PROPERTY,
+  setPropertiesAction,
+  selectPropertyAction
+} from './_lib/properties.actions';
 
 export {
   SET_SELF,

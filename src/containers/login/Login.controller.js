@@ -12,7 +12,11 @@ export class LoginController extends BaseController {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleGoogleSignIn = this.handleGoogleSignIn.bind(this);
     this.handleFacebookSignIn = this.handleFacebookSignIn.bind(this);
+
+    this._authenticateSocialMedia = this._authenticateSocialMedia.bind(this);
   }
+
+
 
   handleChange(e, format) {
     const state = this.getState();
@@ -25,6 +29,8 @@ export class LoginController extends BaseController {
       }
     });
   }
+
+
 
   async handleSubmit(e) {
     e.preventDefault();
@@ -50,6 +56,8 @@ export class LoginController extends BaseController {
     history.push(url);
   }
 
+
+
   async handleGoogleSignIn(res) {
     const { accessToken, profileObj } = res;
 
@@ -64,17 +72,25 @@ export class LoginController extends BaseController {
 
         // if user doesn't exist, create new user in db 
         if(user.err.code === 404) {
-          const newUser = await this.usersRepo.create({ name, email, imageUrl, origin: 'google', role: 'client' });
-          console.log(newUser);
+          const newUser = await this.usersRepo.create({
+            name,
+            email,
+            imageUrl,
+            origin: 'google',
+            role: 'client',
+            status: 'active'
+          });
+
+          if(!newUser.err) this._authenticateSocialMedia(newUser.data._id, 'google', accessToken);  
         }
       }
 
       // if user exists
-      else {
-        
-      }
+      else this._authenticateSocialMedia(user.data._id, 'google', accessToken);  
     }
   }
+
+
 
   async handleFacebookSignIn(res) {
     const { accessToken } = res;
@@ -83,22 +99,45 @@ export class LoginController extends BaseController {
     const { email, name, picture } = res;
     if(email) {
       // try to find user by email
-      const user = await this.usersRepo.fetchByEmail(email)
+      const user = await this.usersRepo.fetchByEmail(email);
 
       if(user.err) {
 
         // if user doesn't exist, create new user in db 
         if(user.err.code === 404) {
           const imageUrl = picture && picture.data ? picture.data.url : '';
-          const newUser = await this.usersRepo.create({ name, email, imageUrl, origin: 'facebook', role: 'client' });
-          console.log(newUser);
+          const newUser = await this.usersRepo.create({
+            name,
+            email,
+            imageUrl,
+            origin: 'facebook',
+            role: 'client',
+            status: 'active'
+          });
+
+          if(!newUser.err) this._authenticateSocialMedia(newUser.data._id, 'facebook', accessToken);  
         }
       }
 
       // if user exists
-      else {
+      else this._authenticateSocialMedia(user.data._id, 'facebook', accessToken);
+    }
+  }
 
-      }
+  async _authenticateSocialMedia(user_id, origin, accessToken) {
+    const auth = await this.usersRepo.authenticateSocialMedia({
+      user_id, origin, accessToken
+    });
+
+    if(!auth.err) {
+      window.localStorage.setItem('user_id', auth.data.user._id);
+      window.localStorage.setItem('token', auth.data.token);
+
+      const route = {
+        admin: '/users'
+      }[auth.data.user.role] || '/properties'
+      
+      this.getProps().history.push(route);
     }
   }
 }

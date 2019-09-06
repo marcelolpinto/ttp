@@ -3,11 +3,11 @@ function genResponse(status, data, details) {
     success: !!data,
     code: status.code,
     message: status.msg,
-    err: {
+    err: !! data ? {
       code: status.code,
       msg: status.msg,
       toast: status.toast || false
-    },
+    } : null,
     data
   };
 }

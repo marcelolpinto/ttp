@@ -1,13 +1,13 @@
 import { BaseController } from './helpers';
-import { Meals, User, Users } from './entities';
-import { MealsRepository, UsersRepository } from './repositories';
+import { Properties, User, Users } from './entities';
+import { PropertiesRepository, UsersRepository } from './repositories';
 
 export class PrivateController extends BaseController {
   constructor({ getState, getProps, toState }) {
     super({ getState, getProps, toState });
 
     this.usersRepo = new UsersRepository();
-    this.mealsRepo = new MealsRepository();
+    this.propertiesRepo = new PropertiesRepository();
 
     this.init = this.init.bind(this);
     this.logout = this.logout.bind(this);
@@ -38,26 +38,39 @@ export class PrivateController extends BaseController {
     const method = {
       user: () => this._handleUserLogin(self),
       manager: () => this._handleManagerAdminLogin(self),
-      admin: () => this._handleManagerAdminLogin(self)
+      admin: () => this._handleAdminLogin(self)
     }[self.role];
     
     method();
   }
 
   async _handleUserLogin(self) {
-    const { setMealsAction } = this.getProps();
-    const meals = await this.mealsRepo.list(self.id);
+    const { setPropertiesAction } = this.getProps();
+    const properties = await this.propertiesRepo.list(self.id);
     
-    if(!meals.err) {
-      const newMeals = new Meals(meals.data);
-      setMealsAction(newMeals);
+    if(!properties.err) {
+      const newProperties = new Properties(properties.data);
+      setPropertiesAction(newProperties);
     } else {
-      console.log(meals.err);
-      throw new Error('Error fetching meals.');
+      console.log(properties.err);
+      throw new Error('Error fetching properties.');
     }
   }
 
   async _handleManagerAdminLogin(self) {
+    const { setUsersAction } = this.getProps();
+    const users = await this.usersRepo.list();
+    
+    if(!users.err) {
+      const newUsers = new Users(users.data);
+      setUsersAction(newUsers);
+    } else {
+      console.log(users.err);
+      throw new Error('Error fetching users.');
+    }
+  }
+
+  async _handleAdminLogin(self) {
     const { setUsersAction } = this.getProps();
     const users = await this.usersRepo.list();
     

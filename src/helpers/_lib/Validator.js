@@ -14,7 +14,7 @@ export default class Validator {
   
   static createUser(values) {
     const errors = {};
-    const required = ['name', 'email', 'password', 'confirm_password', 'role'];
+    const required = ['name', 'email', 'password', 'confirm_password'];
 
     if(!this._emailFormat(values.email)) errors.email = 'Invalid e-mail.'
     if(values.password.length < 3) errors.password = 'Password should contain at least 3 characters.'
@@ -32,7 +32,7 @@ export default class Validator {
   
   static editUser(values) {
     const errors = {};
-    const required = ['name', 'email', 'role'];
+    const required = ['name', 'email'];
     
     if(!this._emailFormat(values.email)) errors.email = 'Invalid e-mail.'
 
@@ -40,6 +40,15 @@ export default class Validator {
 			if(!values[i]) errors[i] = 'Required.';
     }
     
+    return { errors, validated: !Object.keys(errors).length };
+  }
+  
+  static inviteUser(values) {
+    const errors = {};
+    const required = ['email'];
+    
+    if(!this._emailFormat(values.email)) errors.email = 'Invalid e-mail.'
+
     return { errors, validated: !Object.keys(errors).length };
   }
   

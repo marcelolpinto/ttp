@@ -4,7 +4,7 @@ import { BaseController } from "../../helpers";
 import { UsersRepository } from '../../repositories';
 import { toast } from 'react-toastify';
 
-export class ManagerDashboardController extends BaseController {
+export class UsersController extends BaseController {
   constructor({ toState, getState, getProps }) {
     super({ toState, getState, getProps });
 

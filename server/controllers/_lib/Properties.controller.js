@@ -2,14 +2,14 @@ const Joi = require('joi');
 const genResponse = require('../../genResponse');
 const codes = require('../../codes');
 const {
-  createMealValidation,
-  updateMealValidation
-} = require('../../validation/meals.validation');
+  createPropertyValidation,
+  updatePropertyValidation
+} = require('../../validation/properties.validation');
 
-class MealsController {
-  constructor({ users, meals }) {
+class PropertiesController {
+  constructor({ users, properties }) {
     this.users = users;
-    this.meals = meals;
+    this.properties = properties;
     
     this.create = this.create.bind(this);
     this.list = this.list.bind(this);
@@ -23,7 +23,7 @@ class MealsController {
       return res.send(genResponse(codes.EMTPY_BODY, null));
     }
 
-    const validation = Joi.validate(req.body, createMealValidation);
+    const validation = Joi.validate(req.body, createPropertyValidation);
     if(validation.error) {
       const details = validation.error.details.map(({ message }) => message);
       res.send(genResponse(codes.VALIDATION_ERROR, null, details));
@@ -37,7 +37,7 @@ class MealsController {
     };
 
     let statusCode, response;
-    this.meals.create(body, (err, response) => {
+    this.properties.create(body, (err, response) => {
       if(err) {
         statusCode = { code: 'MONGO_CREATE_ERROR', msg: err.errors.role.name };
         res.send(genResponse(statusCode, null));
@@ -56,47 +56,47 @@ class MealsController {
     }
 
     let response;
-    const meals = await this.meals.find({ user_id }).sort({ date: -1 });
+    const properties = await this.properties.find({ user_id }).sort({ date: -1 });
 
-    if(!meals) response = genResponse({
+    if(!properties) response = genResponse({
       code: 'MONGO_LIST_ERROR',
-      msg: 'list meals error.'
+      msg: 'list properties error.'
     }, null);
-    else response = genResponse(codes.OK, meals);
+    else response = genResponse(codes.OK, properties);
 
     res.send(response);
   }
 
   async fetch(req, res) {
-    const { user_id, meal_id } = req.params;
+    const { user_id, property_id } = req.params;
     
-    if(!user_id || !meal_id) {
+    if(!user_id || !property_id) {
       res.send(genResponse(codes.MISSING_PARAMS, null))
       return;
     }
 
     let response;
-    const meal = await this.meals.findOne({ user_id, _id: meal_id }, err => {
+    const property = await this.properties.findOne({ user_id, _id: property_id }, err => {
       if(err) {
         res.send({ code: 'MONGO_ERR', msg: err });
         return;
       }
     });
 
-    if(!meal) response = genResponse({
+    if(!property) response = genResponse({
       code: 'MONGO_FETCH_ERROR',
-      msg: 'fetch meal error.'
+      msg: 'fetch property error.'
     }, null);
-    else response = genResponse(codes.OK, meal);
+    else response = genResponse(codes.OK, property);
 
     res.send(response)
   }
 
   async update(req, res) {
-    const { user_id, meal_id } = req.params;
+    const { user_id, property_id } = req.params;
     const { body } = req
    
-    if(!user_id || !meal_id) {
+    if(!user_id || !property_id) {
       res.send(genResponse(codes.MISSING_PARAMS, null))
       return;
     }
@@ -106,14 +106,14 @@ class MealsController {
       return;
     }
 
-    const validation = Joi.validate(body, createMealValidation);
+    const validation = Joi.validate(body, createPropertyValidation);
     if(validation.error) {
       const details = validation.error.details.map(({ message }) => message);
       res.send(genResponse(codes.VALIDATION_ERROR, null, details));
       return;
     }
 
-    this.meals.update({ _id: meal_id }, { $set: body }, (err, response) => {
+    this.properties.update({ _id: property_id }, { $set: body }, (err, response) => {
       if(err) {
         const statusCode = { code: 'MONGO_UPDATE_ERROR', msg: err.errors.role.name };
         res.send(genResponse(statusCode, null));
@@ -124,15 +124,15 @@ class MealsController {
   }
 
   delete(req, res) {
-    const { user_id, meal_id } = req.params;
+    const { user_id, property_id } = req.params;
 
-    if(!user_id || !meal_id) {
+    if(!user_id || !property_id) {
       res.send(genResponse(codes.MISSING_PARAMS, null))
       return;
     }
 
     let statusCode;
-    this.meals.deleteOne({ _id: meal_id }, (err, response) => {
+    this.properties.deleteOne({ _id: property_id }, (err, response) => {
       if(err) {
         statusCode = { code: 'MONGO_DELETE_ERROR', msg: err.errors.role.name };
         res.send(genResponse(statusCode, null));
@@ -143,4 +143,4 @@ class MealsController {
   }
 }
 
-module.exports = MealsController;
+module.exports = PropertiesController;

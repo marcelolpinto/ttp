@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import compose from 'recompose/compose';
-import { withStyles, Menu, MenuItem, Button, Icon } from '@material-ui/core';
+import { withStyles, Menu, MenuItem, Button, Icon, Avatar } from '@material-ui/core';
+
+const NO_IMAGE_URL = 'https://cdn4.iconfinder.com/data/icons/eldorado-user/40/user-128.png';
 
 const actions = {};
 
@@ -16,16 +18,32 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    '& > h3': {
-      color: 'white',
-      fontWeight: 400,
-      lineHeight: `${theme.sizes.HEADER_HEIGHT}px`,
-      cursor: 'pointer'
+    '& > div.left': {
+      display: 'flex',
+      justifyContent: 'space-between',
+      '& > h3': {
+        color: 'white',
+        fontWeight: 400,
+        lineHeight: `${theme.sizes.HEADER_HEIGHT}px`,
+        cursor: 'pointer',
+        marginRight: 4 * theme.unit,
+      },
+      '& > button': {
+        color: 'white',
+        paddingLeft: 3 * theme.unit,
+        paddingRight: 3 * theme.unit,
+      }
     },
     '& p.welcome': {
       display: 'inline-block',
       color: 'white',
-      marginRight: 8
+      verticalAlign: 'middle',
+      marginRight: 8,
+    },
+    '& div.avatar': {
+      display: 'inline-block',
+      verticalAlign: 'middle',
+      marginRight: 16,
     }
   }
 });
@@ -41,9 +59,14 @@ class Header extends Component {
 
     return (
       <div className={classes.wrapper}>
-        <h3 onClick={homeClick}>TTP Properties</h3>
+        <div className='left'>
+          <h3 onClick={homeClick}>TTP Properties</h3>
+          <Button id='users' onClick={() => history.push('/users')}>Users</Button>
+          <Button id='properties' onClick={() => history.push('/properties')}>Properties</Button>
+        </div>
         <div>
-          <p className='welcome'>Welcome{self ? `, ${self.name}` : ''}</p>
+          <Avatar className='avatar' src={self && self.imageUrl ? self.imageUrl : NO_IMAGE_URL} />
+          <p className='welcome'>{self && self.name}</p>
           <Button
             style={{ color: 'white' }}
             aria-controls="simple-menu"
@@ -58,6 +81,16 @@ class Header extends Component {
             open={!!anchorEl}
             onClose={() => this.setState({ anchorEl: null })}
           >
+            {
+              (self && self.role === 'admin') &&
+              <MenuItem
+                onClick={() => {
+                  this.setState({ anchorEl: null });
+                  history.push('/invite');
+                }}>
+                Invite
+              </MenuItem>
+            }
             <MenuItem onClick={() => { this.setState({ anchorEl: null }); history.push('/settings'); }}>Settings</MenuItem>
             <MenuItem onClick={logout}>Logout</MenuItem>
           </Menu>

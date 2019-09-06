@@ -8,10 +8,7 @@ export const userTableHead = [
   }, {
     id: 'role',
     label: 'Role'
-  }, {
-    id: 'max_calories',
-    label: 'Estimated Calories / day (kcal)'
-  }
+  },
 ];
 
 export const mealsTableHead = [

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { meals } = require('./schemas/meals.schema');
+const { properties } = require('./schemas/properties.schema');
 const { users } = require('./schemas/users.schema');
 const { MONGO_URL } = require('../global');
 
@@ -9,10 +9,10 @@ class MongoDB {
       if(err) console.log(err);
       else console.log(`Connected to mongo.`);
     });
-		// mongoose.set('debug', true);
+		mongoose.set('debug', true);
     
     const { Schema } = mongoose;
-    this.Meals = mongoose.model('meals', meals(Schema))
+    this.Properties = mongoose.model('properties', properties(Schema))
     this.Users = mongoose.model('users', users(Schema))
 	}
 }

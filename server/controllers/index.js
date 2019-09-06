@@ -1,7 +1,7 @@
-const MealsController = require('./_lib/Meals.controller');
+const PropertiesController = require('./_lib/Properties.controller');
 const UsersController = require('./_lib/Users.controller');
 
 module.exports = {
-  MealsController,
+  PropertiesController,
   UsersController
 };

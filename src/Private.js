@@ -6,7 +6,6 @@ import { Header } from './components';
 import { BaseContainer } from './helpers';
 import { PrivateController } from './Private.controller';
 import {
-  setMealsAction,
   setSelfAction,
   setUsersAction,
   showLoadingAction,
@@ -15,7 +14,6 @@ import {
 } from './store/actions';
 
 const actions = {
-  setMealsAction,
   setSelfAction,
   setUsersAction,
   showLoadingAction,

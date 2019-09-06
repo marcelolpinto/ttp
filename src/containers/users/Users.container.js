@@ -5,7 +5,7 @@ import compose from 'recompose/compose';
 import { toast } from 'react-toastify';
 
 import { BaseContainer } from '../../helpers';
-import { ManagerDashboardController } from './ManagerDashboard.controller';
+import { UsersController } from './Users.controller';
 import {
   closeModalAction,
   openModalAction,
@@ -76,9 +76,9 @@ const styles = theme => ({
   }
 });
 
-class ManagerDashboard extends BaseContainer {
+class Users extends BaseContainer {
   constructor(props) {
-    super(props, ManagerDashboardController);
+    super(props, UsersController);
   }
 
   state = {
@@ -102,8 +102,7 @@ class ManagerDashboard extends BaseContainer {
   componentWillReceiveProps(nextProps) {
     const { users } = nextProps, prevUsers = this.props.users;
     if(users && !prevUsers) {
-      const all = nextProps.self.role === 'admin' ? 'all' : 'allUsers';
-      this.setState({ toTable: nextProps.users[all] });
+      this.setState({ toTable: nextProps.users.all });
     }
   }
 
@@ -138,31 +137,22 @@ class ManagerDashboard extends BaseContainer {
         </thead>
         <tbody>
           {toTable.map(({ id, name, max_calories, email, role }) => {
-
-            const shouldEdit = self.role === 'admin' || (self.role === 'manager' && role !== 'admin');
-            const shouldRedirect = self.role === 'admin' && role === 'user';
-
             return (
-              <tr
-                key={id}
-                className={shouldRedirect ? 'pointer' : ''}
-                onClick={e => shouldRedirect ? handleViewUser(e, id) : null}
-              >
+              <tr key={id}>
                 <td>{name}</td>
                 <td>{email}</td>
                 <td>{role}</td>
-                <td>{role === 'user' ? max_calories : null}</td>
                 <td>
-                  {shouldEdit ? <Icon onClick={e => {
+                  <Icon onClick={e => {
                     e.stopPropagation();
                     if(id === self.id) return toast('Go to the Settings Menu if you want to edit your profile.');
                     history.push(`/users/${id}/edit`);
                   }}>
                     edit
-                  </Icon> : null}
+                  </Icon>
                 </td>
                 <td>
-                  {shouldEdit ? <Icon onClick={e => {
+                  <Icon onClick={e => {
                     e.stopPropagation();
                     openModalAction({
                       description: self.id === id ?
@@ -170,7 +160,9 @@ class ManagerDashboard extends BaseContainer {
                         : `Are you sure you want to delete ${name}?`,
                       buttonFn: () => handleDeleteUser(id)
                     });
-                  }}> delete </Icon> : null}
+                  }}>
+                    delete
+                  </Icon>
                 </td>
               </tr>
             );
@@ -207,4 +199,4 @@ const mapStateToProps = state => ({
 export default compose(
   withStyles(styles),
   connect(mapStateToProps, actions)
-)(ManagerDashboard);
+)(Users);

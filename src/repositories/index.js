@@ -1,4 +1,4 @@
 export { BaseRepository } from './_lib/Base.repository';
 
-export { MealsRepository } from './_lib/Meals.repository';
+export { PropertiesRepository } from './_lib/Properties.repository';
 export { UsersRepository } from './_lib/Users.repository';

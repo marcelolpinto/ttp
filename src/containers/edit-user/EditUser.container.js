@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { withStyles, Button, TextField, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import { withStyles, Button, TextField, FormControl, InputLabel, Select, MenuItem, Avatar } from '@material-ui/core';
 import compose from 'recompose/compose';
 
 import { setUsersAction, showLoadingAction, closeLoadingAction } from '../../store/actions';
@@ -10,11 +10,28 @@ import "react-datepicker/dist/react-datepicker.css";
 import { EditUserController } from './EditUser.controller';
 import UserNotAllowed from '../../UserNotAllowed';
 
+const NO_IMAGE_URL = 'https://cdn4.iconfinder.com/data/icons/eldorado-user/40/user-128.png';
+
 const actions = { setUsersAction, showLoadingAction, closeLoadingAction };
 
 const styles = theme => ({
   wrapper: {
     ...theme.logedInWrapper,
+    '& > h1': {
+      marginBottom: 2 * theme.unit
+    },
+    '& > div.avatar': {
+      cursor: 'pointer',
+      willChange: 'transform',
+      transition: 'transform .3s, box-shadow .3s',
+      height: 72,
+      width: 72,
+      marginBottom: 2 * theme.unit,
+      '&:hover': {
+        transform: 'scale(1.1)',
+        boxShadow: theme.shadows[1]
+      }
+    },
     '& > form': {
       marginTop: 2 * theme.unit,
       '& .text-input': {
@@ -67,8 +84,8 @@ class EditUser extends BaseContainer {
     email: '',
     password: '',
     confirm_password: '',
-    max_calories: '',
     role: '',
+    imageUrl: '',
     
     errors: {}
   }
@@ -86,8 +103,8 @@ class EditUser extends BaseContainer {
         user,
         name: user.name,
         email: user.email,
-        max_calories: user.max_calories,
-        role: user.role
+        role: user.role,
+        imageUrl: user.imageUrl
       });
     }
   }
@@ -103,8 +120,8 @@ class EditUser extends BaseContainer {
         user,
         name: user.name,
         email: user.email,
-        max_calories: user.max_calories,
-        role: user.role
+        role: user.role,
+        imageUrl: user.imageUrl
       });
     }
   }
@@ -112,12 +129,27 @@ class EditUser extends BaseContainer {
   render() {
     const { classes, history, self } = this.props;
     const { errors } = this.state;
-    const { handleChange, handleSubmit, handleSelect, handleChangePassword } = this.controller;
+    const { handleChange, handleSubmit, handleUpload, handleSelect, handleChangePassword } = this.controller;
 
     return (
       <UserNotAllowed>
         <div className={classes.wrapper}>
+
           <h1>Edit User</h1>
+
+          <input
+            type='file'
+            id='file-upload'
+            accept="image/*" 
+            onChange={handleUpload}
+            style={{ display: 'none' }}
+          />
+          <Avatar
+            className='avatar'
+            onClick={() => document.querySelector('#file-upload').click()}
+            src={this.state.imageUrl || NO_IMAGE_URL}
+          />
+
           <form onSubmit={handleSubmit}>
             <TextField
               error={!!errors.name}
@@ -137,15 +169,6 @@ class EditUser extends BaseContainer {
               value={this.state.email}
               onChange={handleChange}
             />
-            {this.state.role === 'user' && <TextField
-              error={!!errors.max_calories}
-              helperText={errors.max_calories}
-              id='max_calories'
-              label='Expected calories/day'
-              className='text-input'
-              value={this.state.max_calories}
-              onChange={e => handleChange(e, 'number')}
-            />}
             <br/>
             <FormControl>
               <InputLabel htmlFor="role">Role</InputLabel>
@@ -158,8 +181,8 @@ class EditUser extends BaseContainer {
                   id: 'role',
                 }}
               >
-                <MenuItem value='user'>User</MenuItem>
-                <MenuItem value='manager'>Manager</MenuItem>
+                <MenuItem value='client'>Client</MenuItem>
+                <MenuItem value='realtor'>Realtor</MenuItem>
                 {self && self.role === 'admin' ? <MenuItem value='admin'>Admin</MenuItem> : null}
               </Select>
             </FormControl>

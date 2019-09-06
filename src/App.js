@@ -14,13 +14,14 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Private from './Private';
 import { Login } from './containers/login';
 import { CreateUser } from './containers/create-user';
-import { CreateMeal } from './containers/create-meal';
-import { EditMeal } from './containers/edit-meal';
+import { CreateProperty } from './containers/create-property';
+import { CompleteUser } from './containers/complete-user';
 import { EditUser } from './containers/edit-user';
-import { ManagerDashboard } from './containers/manager-dashboard';
+import { InviteUser } from './containers/invite-user';
+import { Users } from './containers/users';
 import { ManagerCreateUser } from './containers/manager-create-user';
 import { Settings } from './containers/settings';
-import { UserDashboard } from './containers/user-dashboard';
+import { Properties } from './containers/properties';
 import { ValidateUser } from './containers/validate-user';
 import { Modal, Loading } from './components';
 import { NotFound } from './NotFound';
@@ -56,16 +57,17 @@ class App extends Component {
           <Switch>
             <Route exact path='/' component={Login} />
             <Route exact path='/new-user' component={CreateUser} />
+            <Route exact path='/complete-user' component={CompleteUser} />
             <Route exact path='/validate' component={ValidateUser} />
             <Private>
               <Switch>
                 <Route exact path='/settings' component={Settings} />
-                <Route exact path='/users' component={ManagerDashboard} />
+                <Route exact path='/users' component={Users} />
+                <Route exact path='/invite' component={InviteUser} />
                 <Route exact path='/users/new' component={ManagerCreateUser} />
                 <Route exact path='/users/:userId/edit' component={EditUser} />
-                <Route exact path='/dashboard/:userId' component={UserDashboard} />
-                <Route exact path='/:userId/new-meal' component={CreateMeal} />
-                <Route exact path='/:userId/edit-meal/:mealId' component={EditMeal} />
+                <Route exact path='/properties' component={Properties} />
+                <Route exact path='/create-property' component={CreateProperty} />
                 <Route path='/*' component={NotFound} />
               </Switch>
             </Private>

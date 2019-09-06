@@ -1,14 +1,16 @@
 import React from 'react'
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import { withStyles, Button, TextField } from '@material-ui/core';
+import queryString from 'query-string';
 import compose from 'recompose/compose';
-import { BaseContainer } from '../../helpers';
-import { LoginController } from './Login.controller';
-import { showLoadingAction, closeLoadingAction } from '../../store/actions';
-import { GoogleLogin } from 'react-google-login';
-import FacebookLogin from 'react-facebook-login';
 
-const actions = { showLoadingAction, closeLoadingAction };
+import { BaseContainer } from '../../helpers';
+import { showLoadingAction, closeLoadingAction, setSelfAction } from '../../store/actions';
+import { CompleteUserController } from './CompleteUser.controller';
+import { toast } from 'react-toastify';
+
+const actions = { showLoadingAction, closeLoadingAction, setSelfAction };
 
 const styles = theme => ({
   wrapper: {
@@ -41,36 +43,61 @@ const styles = theme => ({
         '& > button': {
           marginTop: 2 * theme.unit,
           display: 'inline-block',
-          '&#login': theme.buttons.primary,
+          '&#save': theme.buttons.primary,
         }
       }
     }
   }
 });
 
-class Login extends BaseContainer {
+class CompleteUser extends BaseContainer {
   constructor(props) {
-    super(props, LoginController);
+    super(props, CompleteUserController);
+
+    this.query = queryString.parse(props.location.search);
+
+    if(!this.query.email || !this.query.token || !this.query.user_id) {
+      console.error('Missing parameters in URL.');
+      props.history.push('/');
+    }
+
+    this.state = {
+      name: '',
+      email: this.query.email,
+      password: '',
+      confirm_password: '',
+  
+      errors: {},
+      
+      query: this.query
+    }
   }
 
-  state = {
-    email: '',
-    password: '',
-
-    errors: {}
+  componentWillMount() {
+    this.controller.initialValidation();
   }
 
   render() {
-    const { classes, history } = this.props;
     const { errors } = this.state;
-    const { handleChange, handleSubmit, handleGoogleSignIn, handleFacebookSignIn } = this.controller;
+    const { classes, history } = this.props;
+    const { handleChange, handleSubmit } = this.controller;
 
     return (
       <div className={classes.wrapper}>
         <div>
-          <h1>TTP Properties</h1>
+          <h1>Complete your profile</h1>
           <form onSubmit={handleSubmit}>
             <TextField
+              error={!!errors.name}
+              helperText={errors.name}
+              id='name'
+              label='Name'
+              className='text-input'
+              value={this.state.name}
+              onChange={handleChange}
+            />
+            <TextField
+              disabled
               error={!!errors.email}
               helperText={errors.email}
               id='email'
@@ -78,7 +105,7 @@ class Login extends BaseContainer {
               className='text-input'
               value={this.state.email}
               onChange={handleChange}
-              />
+            />
             <TextField
               error={!!errors.password}
               helperText={errors.password}
@@ -89,25 +116,17 @@ class Login extends BaseContainer {
               value={this.state.password}
               onChange={handleChange}
             />
-            <Button type='submit' id='login' onClick={handleSubmit}>Login</Button>
-            <br/>
-            <Button id='new-user' onClick={() => history.push('new-user')}>
-              or create a new user
-            </Button>
-            <br/>
-            <GoogleLogin
-              clientId="478083504438-eqa86sfd32fab97o705l2d6sprroc8j8.apps.googleusercontent.com"
-              buttonText="Sign In or Login"
-              onSuccess={handleGoogleSignIn}
-              onFailure={res => console.error('google login failure:', res)}
-              cookiePolicy={'single_host_origin'}
+            <TextField
+              error={!!errors.confirm_password}
+              helperText={errors.confirm_password}
+              id='confirm_password'
+              label='Confirm Password'
+              className='text-input'
+              type='password'
+              value={this.state.confirm_password}
+              onChange={handleChange}
             />
-            <FacebookLogin
-              appId="995398630792024"
-              fields="name,email,picture"
-              onClick={(e) => console.log('clicked', e)}
-              
-              callback={handleFacebookSignIn} />
+            <Button type='submit' id='save' onClick={handleSubmit}>Complete</Button>
           </form>
         </div>
       </div>
@@ -119,5 +138,6 @@ const mapStateToProps = state => ({});
 
 export default compose(
   withStyles(styles),
+  withRouter,
   connect(mapStateToProps, actions)
-)(Login);
+)(CompleteUser);
