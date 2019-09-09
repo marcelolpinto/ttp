@@ -8,7 +8,6 @@ import compose from 'recompose/compose';
 import { BaseContainer } from '../../helpers';
 import { showLoadingAction, closeLoadingAction, setSelfAction } from '../../store/actions';
 import { CompleteUserController } from './CompleteUser.controller';
-import { toast } from 'react-toastify';
 
 const actions = { showLoadingAction, closeLoadingAction, setSelfAction };
 
@@ -79,7 +78,7 @@ class CompleteUser extends BaseContainer {
 
   render() {
     const { errors } = this.state;
-    const { classes, history } = this.props;
+    const { classes } = this.props;
     const { handleChange, handleSubmit } = this.controller;
 
     return (

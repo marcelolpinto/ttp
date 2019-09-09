@@ -21,11 +21,11 @@ app.use(function(req, res, next) {
 const mongo = new MongoDB();
 mongo.init();
 
-const mailer = new Mailer({});
+const mailer = new Mailer();
 mailer.init();
 
-const router = new Routes({ app, mongo, mailer });
-router.init();
+const routes = new Routes({ app, mongo, mailer });
+routes.init();
 
 app.listen(3001, () =>
   console.log('Express server is running on localhost:3001')

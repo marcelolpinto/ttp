@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import compose from 'recompose/compose';
 import { withStyles, Menu, MenuItem, Button, Icon, Avatar } from '@material-ui/core';
-
-const NO_IMAGE_URL = 'https://cdn4.iconfinder.com/data/icons/eldorado-user/40/user-128.png';
+import { NO_IMAGE_URL } from '../../constants';
 
 const actions = {};
 
@@ -25,7 +24,6 @@ const styles = theme => ({
         color: 'white',
         fontWeight: 400,
         lineHeight: `${theme.sizes.HEADER_HEIGHT}px`,
-        cursor: 'pointer',
         marginRight: 4 * theme.unit,
       },
       '& > button': {
@@ -55,19 +53,26 @@ class Header extends Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { classes, history, homeClick, logout, self } = this.props;
+    const { classes, history, logout, self, showImage } = this.props;
 
     return (
       <div className={classes.wrapper}>
         <div className='left'>
-          <h3 onClick={homeClick}>TTP Properties</h3>
-          <Button id='users' onClick={() => history.push('/users')}>Users</Button>
+          <h3>TTP Properties</h3>
+          {
+            self && self.role === 'admin' &&
+            <Button id='users' onClick={() => history.push('/users')}>Users</Button>
+          }
           <Button id='properties' onClick={() => history.push('/properties')}>Properties</Button>
         </div>
         <div>
-          <Avatar className='avatar' src={self && self.imageUrl ? self.imageUrl : NO_IMAGE_URL} />
+          <Avatar
+            className='avatar'
+            src={self && self.imageUrl && showImage ? self.imageUrl : NO_IMAGE_URL}
+          />
           <p className='welcome'>{self && self.name}</p>
           <Button
+            id='menu'
             style={{ color: 'white' }}
             aria-controls="simple-menu"
             aria-haspopup="true"
@@ -84,6 +89,7 @@ class Header extends Component {
             {
               (self && self.role === 'admin') &&
               <MenuItem
+                id='invite'
                 onClick={() => {
                   this.setState({ anchorEl: null });
                   history.push('/invite');
@@ -91,8 +97,13 @@ class Header extends Component {
                 Invite
               </MenuItem>
             }
-            <MenuItem onClick={() => { this.setState({ anchorEl: null }); history.push('/settings'); }}>Settings</MenuItem>
-            <MenuItem onClick={logout}>Logout</MenuItem>
+            <MenuItem
+              id='settings'
+              onClick={() => { this.setState({ anchorEl: null }); history.push('/settings'); }}
+            >
+              Settings
+            </MenuItem>
+            <MenuItem id='logout' onClick={logout}>Logout</MenuItem>
           </Menu>
         </div>
       </div>
@@ -100,7 +111,10 @@ class Header extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  self: state.users.self,
+  showImage: state.header.show
+});
 
 Header = compose(
   withStyles(styles),

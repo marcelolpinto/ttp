@@ -1,8 +1,5 @@
 import React from 'react';
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from 'react-places-autocomplete';
+import PlacesAutocomplete from 'react-places-autocomplete';
 import { withStyles } from '@material-ui/styles';
 
 const styles = theme => ({
@@ -15,7 +12,11 @@ const styles = theme => ({
       backgroundColor: theme.colors.gray.bg,
       boxShadow: 'none',
       border: 'none',
-      borderBottom: `1px solid ${theme.colors.gray.main}`
+      borderBottom: `1px solid ${theme.colors.gray.main}`,
+      '&:focus': {
+        outline: 'none',
+        borderBottom: `2px solid ${theme.colors.blue.main}`
+      }
     }
   }
 })
@@ -30,35 +31,36 @@ class LocationSearchInput extends React.Component {
     this.setState({ address });
   };
  
-  handleSelect = address => {
-    geocodeByAddress(address)
-      .then(results => getLatLng(results[0]))
-      .then(latLng => console.log('Success', latLng))
-      .catch(error => console.error('Error', error));
-  };
- 
   render() {
-    const { classes } = this.props;
+    const { classes, handleSelect, handleChange } = this.props;
 
     return (
       <PlacesAutocomplete
-        value={this.state.address}
-        onChange={this.handleChange}
-        onSelect={this.handleSelect}
+        value={this.props.value}
+        onChange={handleChange}
+        onSelect={handleSelect}
       >
         {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
           <div className={classes.wrapper}>
-            <label>Address</label>
+            <label style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '.8rem' }}>Address</label>
             <input
               {...getInputProps({
-                placeholder: 'Search Places ...',
+                placeholder: 'Type address',
                 className: 'location-search-input',
               })}
             />
             <div className="autocomplete-dropdown-container">
-              {loading && <div>Loading...</div>}
+              {
+                loading &&
+                <div style={{
+                  padding: '8px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px'
+                }}>
+                  Loading...
+                </div>
+              }
               {suggestions.map(suggestion => {
-                console.log(suggestion);
                 const className = suggestion.active
                   ? 'suggestion-item--active'
                   : 'suggestion-item';

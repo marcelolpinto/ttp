@@ -12,14 +12,15 @@ export class EditUserController extends BaseController  {
     this.handleChange = this.handleChange.bind(this);
     this.handleSelect = this.handleSelect.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleReactivate = this.handleReactivate.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
   }
 
   handleUpload(e) {
     e.preventDefault();
-    const { history, showLoadingAction, closeLoadingAction } = this.getProps();
+    const { showLoadingAction, closeLoadingAction } = this.getProps();
     const { user } = this.getState();
-		const { files, id } = e.target;
+		const { files } = e.target;
     if(!files.length) return;
     if(!files[0].type.startsWith('image')) {
       return toast('The file must be an image.')
@@ -72,8 +73,8 @@ export class EditUserController extends BaseController  {
   async handleSubmit(e) {
     e.preventDefault();
     const { showLoadingAction, history, closeLoadingAction, users, setUsersAction } = this.getProps();
-    const { user, name, email, max_calories, role } = this.getState();
-    const values = { name, email, max_calories, role };
+    const { user, name, email, role } = this.getState();
+    const values = { name, email, role };
 
     if(!this._hasChanged(user, values)) return toast("No modifications were made.");
 
@@ -88,6 +89,30 @@ export class EditUserController extends BaseController  {
       const newUsers = users.update(user.id, values);
       setUsersAction(newUsers);
       toast(`User updated successfully.`);
+      history.push('/users');
+    }
+  }
+
+  async handleReactivate(e) {
+    e.preventDefault();
+    const {
+      showLoadingAction,
+      history,
+      closeLoadingAction,
+      users,
+      setUsersAction
+    } = this.getProps();
+    const { user } = this.getState();
+    const update = { status: 'active', loginAttempts: 0 };
+
+    showLoadingAction();
+    const userPromise = await this.usersRepo.update(user.id, update);
+    closeLoadingAction();
+
+    if(!userPromise.err) {
+      const newUsers = users.update(user.id, update);
+      setUsersAction(newUsers);
+      toast(`User reactivated successfully.`);
       history.push('/users');
     }
   }
@@ -108,12 +133,11 @@ export class EditUserController extends BaseController  {
 
     const { validated, errors } = Validator.editUserPassword(values)
     if(!validated) return this.toState({ errors });
-    
+
     showLoadingAction();
     const userPromise = await this.usersRepo.update(user.id, values);
     closeLoadingAction();
-    if(userPromise.err) toast(userPromise.err);
-    else {
+    if(!userPromise.err) {
       toast(`User's password updated successfully.`);
       history.push('/users');
     }

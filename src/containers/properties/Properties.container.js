@@ -1,23 +1,30 @@
 import React from 'react'
 import { connect } from 'react-redux';
-import { withStyles, Button, Icon } from '@material-ui/core';
+import { withStyles, Button } from '@material-ui/core';
 import compose from 'recompose/compose';
-import { GoogleMap, withGoogleMap, withScriptjs } from 'react-google-maps';
 
 import { BaseContainer } from '../../helpers';
 import { PropertiesController } from './Properties.controller';
 import {
   showLoadingAction,
   closeLoadingAction,
+  setPropertiesAction,
+  openModalAction,
+  closeModalAction,
 } from '../../store/actions';
 import { MapComponent } from '../../components/_lib/Map.component';
+import { PropertyCard } from './Property.card';
+import { PropertyFilters } from './Property.filters';
 
 const actions = {
   showLoadingAction,
   closeLoadingAction,
+  setPropertiesAction,
+  openModalAction,
+  closeModalAction,
 };
 
-const MIN_LIST_WIDTH = '360px';
+const MIN_LIST_WIDTH = '400px';
 
 const styles = theme => ({
   wrapper: {
@@ -32,12 +39,21 @@ const styles = theme => ({
       verticalAlign: 'top',
       backgroundColor: theme.colors.gray.bg,
       '& > div.head': {
-        display: 'flex',
-        justifyContent: 'space-between',
-        '& > button': theme.buttons.primary
+        '& > *': {
+          display: 'inline-block',
+          verticalAlign: 'middle',
+        },
+        '& > button': {
+          ...theme.buttons.primary,
+          float: 'right'
+        }
       },
       '& > div.body': {
         marginTop: 2 * theme.unit,
+        paddingBottom: 4 * theme.unit,
+        '& > div + div': {
+          marginTop: 2 * theme.unit,
+        }
       }
     },
     '& > div.map': {
@@ -48,6 +64,10 @@ const styles = theme => ({
       display: 'inline-block',
       verticalAlign: 'top',
     }
+  },
+
+  card: {
+
   }
 });
 
@@ -56,36 +76,72 @@ class Properties extends BaseContainer {
     super(props, PropertiesController);
   }
 
-  state = {
+  state = { center: null };
+
+  componentWillMount() {
+    this.controller.fetch();
   }
 
-  componentDidMount() {
+  _renderCards() {
+    const { properties, self, history, openModalAction } = this.props;
+    const { handleDeleteProperty } = this.controller;
+
+    if(!properties) return <div>loading...</div>;
+    if(!properties.all.length) return <div>No properties found.</div>;
+
+    return properties.all.map(property => (
+      <PropertyCard
+        key={property.id}
+        property={property}
+        isEditable={self && self.role !== 'client'}
+        clickAction={() => {
+          this.setState({ center: property.coords });
+          setTimeout(() => {
+            this.setState({ center: null });
+          }, 1500);
+        }}
+        editAction={() => history.push(`/properties/${property.id}/edit`)}
+        deleteAction={() => openModalAction({
+          description: `Are you sure you want to delete '${property.name}?'`,
+          buttonFn: () => handleDeleteProperty(property.id)
+        })}
+      />
+    ));
   }
 
-  componentWillReceiveProps(nextProps) {
-  }
+
 
   render() {
-    const { classes, history, selectedUser, self, match } = this.props;
+    const { center } = this.state;
+    const { classes, history, self, properties } = this.props;
     
     return (
       <div className={classes.wrapper}>
         <div className='list'>
           <div className='head'>
             <h1>Properties</h1>
-            <Button
-              id='create-property'
-              onClick={() => history.push('/create-property')}
-            >
-              Create
-            </Button>
+            {
+              self && self.role !== 'client' &&
+              <Button
+                id='create'
+                onClick={() => history.push('/properties/new')}
+              >
+                + Create
+              </Button>
+            }
+          </div>
+          <div className='filters'>
+            <PropertyFilters setPropertiesAction={setPropertiesAction} />
           </div>
           <div className='body'>
-            Body
+            {this._renderCards()}
           </div>
         </div>
         <div className='map'>
-          <MapComponent properties={[{ id: 1 }]} />
+          <MapComponent
+            center={center}
+            properties={properties ? properties.all : []}
+          />
         </div>
       </div>
     )

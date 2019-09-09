@@ -1,8 +1,7 @@
 import Validator from "../../helpers/_lib/Validator";
 import { BaseController } from "../../helpers";
 import { UsersRepository } from "../../repositories";
-import { toast } from "react-toastify";
-import { User } from "../../entities";
+import { toast } from 'react-toastify';
 
 export class CompleteUserController extends BaseController {
   constructor({ toState, getProps, getState }) {
@@ -16,7 +15,7 @@ export class CompleteUserController extends BaseController {
   }
 
   async initialValidation() {
-    const { setSelfAction, history } = this.getProps();
+    const { history } = this.getProps();
     const { query } = this.getState();
     const { user_id, token } = query;
 
@@ -50,7 +49,7 @@ export class CompleteUserController extends BaseController {
     const { name, email, password, confirm_password, query: { user_id, token } } = this.getState();
     const values = { name, email, password, confirm_password };
     
-    const { validated, errors } = Validator.editUser(values);
+    const { validated, errors } = Validator.createUser(values);
     if(!validated) return this.toState({ errors });
 
     delete values.confirm_password;
@@ -66,7 +65,11 @@ export class CompleteUserController extends BaseController {
 
       toast(`Welcome to TTP Properties.`);
 
-      history.push('/users');
+      const url = {
+        admin: '/users'
+      }[user.data.role] || '/properties';
+
+      history.push(url);
     }
   }
 }

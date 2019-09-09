@@ -15,7 +15,7 @@ export class InviteUserController extends BaseController  {
     e.preventDefault();
     this.toState({ errors: {} });
     const token = window.localStorage.getItem('token');
-    const { showLoadingAction, history, closeLoadingAction } = this.getProps();
+    const { showLoadingAction, closeLoadingAction, users, setUsersAction } = this.getProps();
     const { email, role } = this.getState();
 
     const { validated, errors } = Validator.inviteUser({ email });
@@ -26,6 +26,9 @@ export class InviteUserController extends BaseController  {
     closeLoadingAction();
 
     if(!promise.err) {
+      const newUsers = users.add(promise.data);
+      setUsersAction(newUsers);
+
       toast(`Invitation sent.`);
       this.toState({ email: '', role: 'client' });
     }

@@ -1,5 +1,5 @@
 import { BaseController } from './helpers';
-import { Properties, User, Users } from './entities';
+import { User, Users } from './entities';
 import { PropertiesRepository, UsersRepository } from './repositories';
 
 export class PrivateController extends BaseController {
@@ -11,9 +11,7 @@ export class PrivateController extends BaseController {
 
     this.init = this.init.bind(this);
     this.logout = this.logout.bind(this);
-    this.homeClick = this.homeClick.bind(this);
-    this._handleUserLogin = this._handleUserLogin.bind(this);
-    this._handleManagerAdminLogin = this._handleManagerAdminLogin.bind(this);
+    this._handleAdminLogin = this._handleAdminLogin.bind(this);
   }
 
   async init() {
@@ -35,41 +33,13 @@ export class PrivateController extends BaseController {
     const self = new User(user.data.user);
     setSelfAction(self);
     
-    const method = {
-      user: () => this._handleUserLogin(self),
-      manager: () => this._handleManagerAdminLogin(self),
-      admin: () => this._handleAdminLogin(self)
-    }[self.role];
-    
-    method();
+    if(self.role === 'admin') {
+      this._handleAdminLogin(self);
+    }    
   }
 
-  async _handleUserLogin(self) {
-    const { setPropertiesAction } = this.getProps();
-    const properties = await this.propertiesRepo.list(self.id);
-    
-    if(!properties.err) {
-      const newProperties = new Properties(properties.data);
-      setPropertiesAction(newProperties);
-    } else {
-      console.log(properties.err);
-      throw new Error('Error fetching properties.');
-    }
-  }
-
-  async _handleManagerAdminLogin(self) {
-    const { setUsersAction } = this.getProps();
-    const users = await this.usersRepo.list();
-    
-    if(!users.err) {
-      const newUsers = new Users(users.data);
-      setUsersAction(newUsers);
-    } else {
-      console.log(users.err);
-      throw new Error('Error fetching users.');
-    }
-  }
-
+  
+  
   async _handleAdminLogin(self) {
     const { setUsersAction } = this.getProps();
     const users = await this.usersRepo.list();
@@ -78,22 +48,11 @@ export class PrivateController extends BaseController {
       const newUsers = new Users(users.data);
       setUsersAction(newUsers);
     } else {
-      console.log(users.err);
       throw new Error('Error fetching users.');
     }
   }
 
-  homeClick() {
-    const { self, history } = this.getProps();
-    
-    const url = {
-      user: `/dashboard/${self.id}`,
-      manager: '/users',
-      admin: '/users'
-    }[self.role] || `/dashboard/${self.id}`;
-
-    history.push(url);
-  }
+  
 
   logout() {
     this.getProps().clearAction();

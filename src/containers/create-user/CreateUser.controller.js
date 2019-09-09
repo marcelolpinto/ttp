@@ -28,10 +28,10 @@ export class CreateUserController extends BaseController {
   async handleSubmit(e) {
     e.preventDefault();
     const { showLoadingAction, history, closeLoadingAction } = this.getProps();
-    const { name, email, max_calories, password, confirm_password } = this.getState();
-    const values = { name, email, max_calories, password, confirm_password, origin: 'form' };
+    const { name, email, password, confirm_password } = this.getState();
+    const values = { name, email, password, confirm_password, origin: 'form' };
     
-    values.role = 'user';
+    values.role = 'client';
     const { validated, errors } = Validator.createUser(values);
     if(!validated) return this.toState({ errors });
 

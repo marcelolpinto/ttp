@@ -9,10 +9,57 @@ export class SettingsController extends BaseController  {
 
     this.usersRepo = new UsersRepository();
     
+    this.handleUpload = this.handleUpload.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
   }
+
+  handleUpload(e) {
+    e.preventDefault();
+    const {
+      self,
+      setSelfAction,
+      showLoadingAction,
+      closeLoadingAction,
+      clearHeaderImageAction,
+      restoreHeaderImageAction,
+    } = this.getProps();
+		const { files } = e.target;
+    if(!files.length) return;
+    if(!files[0].type.startsWith('image')) {
+      return toast('The file must be an image.')
+    }
+    
+		const reader = new FileReader();
+		reader.readAsDataURL(files[0]);
+		reader.onload = async () => {
+      showLoadingAction();
+      const to = Array.prototype.slice.call(files).map(file => {
+        return {
+          data: file,
+					src: URL.createObjectURL(file),
+					id: URL.createObjectURL(file) + file.name
+				};
+      });
+      
+    	const form = new FormData();
+      form.append('image', new Blob([to[0].data]), to[0].data.name);
+
+      clearHeaderImageAction();
+      const promise = await this.usersRepo.uploadImage(self.id, form);
+      restoreHeaderImageAction();
+      if(!promise.err) {
+        this.toState({ imageUrl: '' });
+        this.toState({ imageUrl: promise.data.imageUrl });
+
+        const newSelf = self.updateImage(promise.data.imageUrl); 
+        setSelfAction(newSelf);
+      }
+      
+      closeLoadingAction();
+		};
+	}
 
   handleChange(e, format) {
     const state = this.getState();
@@ -28,12 +75,11 @@ export class SettingsController extends BaseController  {
 
   async handleSubmit(e) {
     e.preventDefault();
-    let { name, email, max_calories } = this.getState();
-    const values = { name, email, max_calories };
+    let { name, email } = this.getState();
+    const values = { name, email };
     const {
       self,
       users,
-      history,
       setSelfAction,
       setUsersAction,
       showLoadingAction,
@@ -51,28 +97,19 @@ export class SettingsController extends BaseController  {
       const newSelf = new User({ ...self.original, ...values });
       setSelfAction(newSelf);
 
-      if(self.role !== 'user') {
+      if(self.role === 'admin') {
         const newUsers = users.update(self.id, values);
         setUsersAction(newUsers);
       }
-
-      const url = {
-        user: `/dashboard/${self.id}`,
-        manager: '/users',
-        admin: '/users'
-      }[self.role] || '/dashboard';
+      
       toast('Update successful');
-      history.push(url);
-    } else {
-      console.log(newUser.err);
-      throw new Error('Error creating user');
     }
   }
 
   async handleChangePassword(e) {
     e.preventDefault();
-    const { self, showLoadingAction, history, closeLoadingAction } = this.getProps();
-    const {   old_password, password, confirm_password } = this.getState();
+    const { self, showLoadingAction, closeLoadingAction } = this.getProps();
+    const { old_password, password, confirm_password } = this.getState();
     const values = { old_password, password, confirm_password };
 
     const { validated, errors } = Validator.changePassword(values)
@@ -82,17 +119,6 @@ export class SettingsController extends BaseController  {
     showLoadingAction();
     const userPromise = await this.usersRepo.changePassword(self.id, values);
     closeLoadingAction();
-    if(userPromise.err) toast(userPromise.err.msg);
-    else {
-      toast('Password updated successfully.');
-
-      const url = {
-        user: `/dashboard/${self.id}`,
-        manager: '/users',
-        admin: '/users'
-      }[self.role] || '/dashboard';
-  
-      history.push(url);
-    }
+    if(!userPromise.err) toast('Password updated successfully.');
   }
 }

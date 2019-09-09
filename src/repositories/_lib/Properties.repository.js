@@ -2,23 +2,23 @@ import { BaseRepository } from './Base.repository';
 
 export class PropertiesRepository extends BaseRepository {
 
-  list(userId) {
-    return this.get(`/users/${userId}/properties`);
+  list(query) {
+    return this.get(`/properties?${query}`);
   }
 
-  fetch(userId, propertyId) {
-    return this.get(`/users/${userId}/properties/${propertyId}`);    
+  fetch(propertyId, token) {
+    return this.get(`/properties/${propertyId}?token=${token}`);    
   }
 
-  create(userId, body) {
-    return this.post(`/users/${userId}/properties`, body);
+  create(body, token) {
+    return this.post(`/properties?token=${token}`, body);
   }
 
-  update(userId, propertyId, body) {
-    return this.put(`/users/${userId}/properties/${propertyId}`, body);
+  update(propertyId, body, token) {
+    return this.put(`/properties/${propertyId}?token=${token}`, body);
   }
 
-  remove(userId, propertyId) {
-    return this.delete(`/users/${userId}/properties/${propertyId}`);
+  remove(propertyId, token) {
+    return this.delete(`/properties/${propertyId}?token=${token}`);
   }
 }

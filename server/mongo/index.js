@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const { properties } = require('./schemas/properties.schema');
-const { users } = require('./schemas/users.schema');
+const { Properties } = require('./schemas/Properties.schema');
+const { Users } = require('./schemas/Users.schema');
 const { MONGO_URL } = require('../global');
 
 class MongoDB {
@@ -12,8 +12,8 @@ class MongoDB {
 		mongoose.set('debug', true);
     
     const { Schema } = mongoose;
-    this.Properties = mongoose.model('properties', properties(Schema))
-    this.Users = mongoose.model('users', users(Schema))
+    this.Properties = Properties
+    this.Users = Users;
 	}
 }
 

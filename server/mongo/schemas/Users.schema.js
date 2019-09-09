@@ -1,5 +1,8 @@
-module.exports = { users: function users(Schema) {
-	return new Schema({
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+module.exports = { Users: mongoose.model('users',
+	new Schema({
 		name: { type: String },
 		email: { type: String, required: true, unique: true },
     password: { type: String },
@@ -8,5 +11,7 @@ module.exports = { users: function users(Schema) {
     role: { type: String, required: true },
     status: { type: String, default: 'pending' }, // active, pending, blocked, invited
     origin: { type: String, default: 'form' }
-	}, { timestamps	: { updatedAt: 'updated_at', createdAt: 'created_at' } });
-}};
+  }, {
+    timestamps	: { updatedAt: 'updated_at', createdAt: 'created_at' }
+  })
+)};

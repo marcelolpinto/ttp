@@ -13,16 +13,18 @@ class TokenUtils {
   static validateToken(req, res, next) {
     const { token } = req.query;
     if(!token) {
-      res.status(400).send({ msg: 'Missing token.' });
+      res.status(400).send({ default: "BAD_REQUEST", msg: 'Missing token.' });
       return;
     }
     
-    const isValid = jwt.verify(token, JWT_SECRET);
-    if(!isValid) {
-      res.status(401).send({ msg: 'Invalid token.' });
+    try {
+      const isValid = jwt.verify(token, JWT_SECRET);
+    } 
+    catch(e) {
+      res.status(401).send({ default: "UNAUTHORIZED", msg: 'Invalid token.' });
       return;
     }
-    console.log('isvalid', isValid);
+
     next();
   }
 }

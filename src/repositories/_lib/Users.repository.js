@@ -6,19 +6,21 @@ export class UsersRepository extends BaseRepository {
   }
 
   authenticate(body) {
-    return this.post('/users/authenticate', body);
+    return this.post('/authenticate', body);
   }
 
   authenticateSocialMedia(body) {
-    return this.post('/users/authenticate-sm', body);
+    return this.post('/authenticate-sm', body);
   }
 
   validate(user_id, token) {
-    return this.get(`/users/validate?user_id=${user_id}&token=${token}`);
+    token = token || window.localStorage.getItem('token');
+    return this.get(`/validate-user?user_id=${user_id}&token=${token}`);
   }
 
   list() {
-    return this.get(`/users`);
+    const token = window.localStorage.getItem('token');
+    return this.get(`/users?token=${token}`);
   }
 
   fetch(userId) {
@@ -33,19 +35,23 @@ export class UsersRepository extends BaseRepository {
     return this.post(`/users`, body);
   }
 
-  update(userId, body) {
-    return this.put(`/users/${userId}`, body);
+  update(userId, body, token) {
+    token = token || window.localStorage.getItem('token');
+    return this.put(`/users/${userId}?token=${token}`, body);
   }
 
   uploadImage(userId, body) {
-    return this.put(`/users/${userId}/upload-image`, body);
+    const token = window.localStorage.getItem('token');    
+    return this.put(`/users/${userId}/upload-image?token=${token}`, body);
   }
 
   remove(userId) {
-    return this.delete(`/users/${userId}`);
+    const token = window.localStorage.getItem('token');    
+    return this.delete(`/users/${userId}?token=${token}`);
   }
 
-  sendInvitation(body, token) {
-    return this.post(`/users/invite?token=${token}`, body)
+  sendInvitation(body) {
+    const token = window.localStorage.getItem('token');    
+    return this.post(`/invite-user?token=${token}`, body)
   }
 }

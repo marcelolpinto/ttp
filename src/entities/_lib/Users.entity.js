@@ -8,7 +8,11 @@ export class Users extends BaseEntity {
     this.original = users;
 
     this.all = users.map(user => new User(user));
-    this.allUsers = this.all.filter(u => u.role === 'user');
+
+    this.realtorsToSelect = this.all.filter(r => r.role !== 'client' && r.status === 'active').map(r => ({
+      value: r.id,
+      label: r.name
+    }))
   }
 
   add(item) {

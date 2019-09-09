@@ -4,14 +4,12 @@ import { withRouter } from 'react-router';
 import { withStyles, Button, TextField, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
 import compose from 'recompose/compose';
 
-import { showLoadingAction, closeLoadingAction } from '../../store/actions';
+import { showLoadingAction, closeLoadingAction, setUsersAction } from '../../store/actions';
 import { BaseContainer } from '../../helpers';
 import { InviteUserController } from './InviteUser.controller';
 import UserNotAllowed from '../../UserNotAllowed';
 
-const NO_IMAGE_URL = 'https://cdn4.iconfinder.com/data/icons/eldorado-user/40/user-128.png';
-
-const actions = { showLoadingAction, closeLoadingAction };
+const actions = { showLoadingAction, closeLoadingAction, setUsersAction };
 
 const styles = theme => ({
   wrapper: {
@@ -92,6 +90,7 @@ class InviteUser extends BaseContainer {
               >
                 <MenuItem value='client'>Client</MenuItem>
                 <MenuItem value='realtor'>Realtor</MenuItem>
+                <MenuItem value='admin'>Admin</MenuItem>
               </Select>
             </FormControl>
             <br/>
@@ -113,8 +112,12 @@ class InviteUser extends BaseContainer {
   }
 }
 
+const mapStateToProps = state => ({
+  users: state.users.model
+});
+
 export default compose(
   withStyles(styles),
   withRouter,
-  connect(null, actions)
+  connect(mapStateToProps, actions)
 )(InviteUser);

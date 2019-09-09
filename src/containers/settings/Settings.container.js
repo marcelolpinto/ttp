@@ -1,19 +1,47 @@
 import React from 'react'
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { withStyles, Button, TextField } from '@material-ui/core';
+import { withStyles, Button, TextField, Avatar } from '@material-ui/core';
 import compose from 'recompose/compose';
 
-import { setUsersAction, showLoadingAction, closeLoadingAction, setSelfAction } from '../../store/actions';
+import {
+  setUsersAction,
+  showLoadingAction,
+  closeLoadingAction,
+  setSelfAction,
+  clearHeaderImageAction,
+  restoreHeaderImageAction,
+} from '../../store/actions';
 import { BaseContainer } from '../../helpers';
 import "react-datepicker/dist/react-datepicker.css";
 import { SettingsController } from './Settings.controller';
+import { NO_IMAGE_URL } from '../../constants';
 
-const actions = { setUsersAction, showLoadingAction, closeLoadingAction, setSelfAction };
+const actions = {
+  setUsersAction,
+  showLoadingAction,
+  closeLoadingAction,
+  setSelfAction,
+  clearHeaderImageAction,
+  restoreHeaderImageAction,
+};
 
 const styles = theme => ({
   wrapper: {
     ...theme.logedInWrapper,
+    '& > div.avatar': {
+      cursor: 'pointer',
+      willChange: 'transform',
+      transition: 'transform .3s, box-shadow .3s',
+      marginTop: 2 * theme.unit,
+      height: 72,
+      width: 72,
+      marginBottom: 2 * theme.unit,
+      '&:hover': {
+        transform: 'scale(1.1)',
+        boxShadow: theme.shadows[1]
+      }
+    },
     '& > form': {
       marginTop: 2 * theme.unit,
       '& .text-input + .text-input': {
@@ -64,7 +92,7 @@ class Settings extends BaseContainer {
     if(self) this.setState({
       name: self.name,
       email: self.email,
-      max_calories: self.max_calories
+      imageUrl: self.imageUrl
     });
   }
 
@@ -74,7 +102,7 @@ class Settings extends BaseContainer {
       this.setState({
         name: self.name,
         email: self.email,
-        max_calories: self.max_calories
+        imageUrl: self.imageUrl
       });
     }
   }
@@ -82,7 +110,6 @@ class Settings extends BaseContainer {
   state = {
     name: '',
     email: '',
-    max_calories: '',
     old_password: '',
     password: '',
     confirm_password: '',
@@ -91,16 +118,28 @@ class Settings extends BaseContainer {
   }
 
   render() {
-    const { classes, history, self } = this.props;
+    const { classes, history } = this.props;
     const { errors } = this.state;
-    const { handleChange, handleSubmit, handleChangePassword } = this.controller;
+    const { handleChange, handleSubmit, handleChangePassword, handleUpload } = this.controller;
 
     return (
       <div className={classes.wrapper}>
         <h1>Settings</h1>
-        <h3>Your profile</h3>
+        <h3 style={{ marginTop: '16px' }}>Your profile</h3>
+        <input
+          type='file'
+          id='file-upload'
+          accept="image/*" 
+          onChange={handleUpload}
+          style={{ display: 'none' }}
+        />
+        <Avatar
+          className='avatar'
+          onClick={() => document.querySelector('#file-upload').click()}
+          src={this.state.imageUrl || NO_IMAGE_URL}
+        />
         <form onSubmit={handleSubmit}>
-        <TextField
+          <TextField
             error={!!errors.name}
             helperText={errors.name}
             id='name'
@@ -118,18 +157,6 @@ class Settings extends BaseContainer {
             value={this.state.email}
             onChange={handleChange}
           />
-          {
-            self && self.role === 'user' &&
-            <TextField
-              error={!!errors.max_calories}
-              helperText={errors.max_calories}
-              id='max_calories'
-              label='Expected calories/day'
-              className='text-input'
-              value={this.state.max_calories}
-              onChange={e => handleChange(e, 'number')}
-            />
-          }
           <br/>
           <Button
             type='submit'

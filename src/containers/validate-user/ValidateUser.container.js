@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { withStyles, Button, TextField } from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 import compose from 'recompose/compose';
 import { showLoadingAction, closeLoadingAction } from '../../store/actions';
 import { UsersRepository } from '../../repositories';
@@ -32,22 +32,24 @@ class ValidateUser extends Component {
     const queryObj = queryString.parse(this.props.location.search);
     const { token, user_id } = queryObj; 
     if(!token || !user_id) {
-      // return this.props.history.push('/');
+      return this.props.history.push('/');
     }
     
     const repo = new UsersRepository();
     const validation = await repo.validate(user_id, token);
     
     if(validation.err) {
-      // return this.props.history.push('/');
+      return this.props.history.push('/');
     }
+
     else {
-      const updatedUser = await repo.update(user_id, { status: 'active' });
+      const updatedUser = await repo.update(user_id, { status: 'active' }, token);
       if(!updatedUser.err) {
-        
+        window.localStorage.setItem('token', token);        
+        window.localStorage.setItem('user_id', user_id);        
+        this.props.history.push('/properties');
       }
     }
-    console.log(`validation`, validation);
   }
 
   render() {

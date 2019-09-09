@@ -2,7 +2,7 @@ import { BaseController, Validator } from '../../helpers';
 import { UsersRepository } from '../../repositories';
 import { toast } from 'react-toastify';
 
-export class ManagerCreateUserController extends BaseController  {
+export class AdminCreateUserController extends BaseController  {
   constructor({ toState, getProps, getState }) {
     super({ toState, getProps, getState });
 
@@ -24,6 +24,8 @@ export class ManagerCreateUserController extends BaseController  {
       }
     });
   }
+
+  
   
   handleSelect(e) {
     const { errors } = this.getState();
@@ -31,20 +33,26 @@ export class ManagerCreateUserController extends BaseController  {
     this.toState({ [name]: value, errors: { ...errors, [name]: '' } });
   }
 
+  
+
   async handleSubmit(e) {
     e.preventDefault();
     const { showLoadingAction, history, closeLoadingAction, users, setUsersAction } = this.getProps();
-    const { name, email, max_calories, password, confirm_password, role } = this.getState();
-    const values = { name, email, max_calories, password, confirm_password, role };
+    const { name, email, password, confirm_password, role } = this.getState();
+    const values = { name, email, password, confirm_password, role };
 
-    const { validated, errors } = Validator.createUser(values)
+    const { validated, errors } = Validator.createUser(values);
     if(!validated) return this.toState({ errors });
-    
+
+    delete values.confirm_password;
+    values.origin = 'admin';
+    values.status = 'active';
+
     showLoadingAction();
     const user = await this.usersRepo.create(values);
     closeLoadingAction();
-    if(user.err) toast(user.err);
-    else {
+
+    if(!user.err) {
       const newUsers = users.add(user.data);
       setUsersAction(newUsers);
       toast(`User created successfully.`);

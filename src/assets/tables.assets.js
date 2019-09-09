@@ -6,6 +6,9 @@ export const userTableHead = [
     id: 'email',
     label: 'E-mail'
   }, {
+    id: 'status',
+    label: 'Status'
+  }, {
     id: 'role',
     label: 'Role'
   },

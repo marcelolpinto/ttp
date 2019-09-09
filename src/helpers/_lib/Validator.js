@@ -30,6 +30,34 @@ export default class Validator {
     return { errors, validated: !Object.keys(errors).length };
   }
   
+  static createProperty(values) {
+    const errors = {};
+    const required = ['name', 'description', 'price', 'area', 'bedrooms', 'lat', 'lng', 'realtorId'];
+
+    for(let i of required) {
+			if(!values[i]) errors[i] = 'Required field.';
+    }
+
+    if(!parseFloat(values.lat)) errors.editLat = 'Latitude must be a number.'
+    if(!parseFloat(values.lng)) errors.editLng = 'Longitude must be a number.'
+    
+    return { errors, validated: !Object.keys(errors).length };
+  }
+  
+  static editProperty(values) {
+    const errors = {};
+    const required = ['id', 'name', 'description', 'price', 'area', 'bedrooms', 'lat', 'lng', 'realtorId'];
+
+    for(let i of required) {
+			if(!values[i]) errors[i] = 'Required field.';
+    }
+
+    if(!parseFloat(values.lat)) errors.editLat = 'Latitude must be a number.'
+    if(!parseFloat(values.lng)) errors.editLng = 'Longitude must be a number.'
+    
+    return { errors, validated: !Object.keys(errors).length };
+  }
+  
   static editUser(values) {
     const errors = {};
     const required = ['name', 'email'];
@@ -45,7 +73,6 @@ export default class Validator {
   
   static inviteUser(values) {
     const errors = {};
-    const required = ['email'];
     
     if(!this._emailFormat(values.email)) errors.email = 'Invalid e-mail.'
 
@@ -89,7 +116,6 @@ export default class Validator {
   static editSelf(values, role) {
     const errors = {};
     const required = ['name', 'email'];
-    if(role === 'user') required.push('max_calories');
 
     for(let i of required) {
 			if(!values[i]) errors[i] = 'Required.';

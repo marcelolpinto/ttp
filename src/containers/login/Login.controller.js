@@ -1,6 +1,5 @@
 import { BaseController, Validator } from '../../helpers';
 import { UsersRepository } from '../../repositories';
-import { toast } from 'react-toastify';
 
 export class LoginController extends BaseController {
   constructor({ toState, getProps, getState }) {
@@ -48,10 +47,10 @@ export class LoginController extends BaseController {
     window.localStorage.setItem('user_id', _id);
 
     const url = {
-      user: `/dashboard/${_id}`,
-      manager: '/users',
+      client: `/properties`,
+      manager: '/properties',
       admin: '/users'
-    }[role] || '/dashboard';
+    }[role] || '/properties';
 
     history.push(url);
   }

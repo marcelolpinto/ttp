@@ -4,6 +4,13 @@ export {
 } from './_lib/clear.actions';
 
 export {
+  CLEAR_HEADER_IMAGE,
+  RESTORE_HEADER_IMAGE,
+  clearHeaderImageAction,
+  restoreHeaderImageAction
+} from './_lib/header.actions';
+
+export {
   SHOW_LOADING,
   CLOSE_LOADING,
   showLoadingAction,

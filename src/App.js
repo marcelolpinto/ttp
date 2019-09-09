@@ -17,9 +17,10 @@ import { CreateUser } from './containers/create-user';
 import { CreateProperty } from './containers/create-property';
 import { CompleteUser } from './containers/complete-user';
 import { EditUser } from './containers/edit-user';
+import { EditProperty } from './containers/edit-property';
 import { InviteUser } from './containers/invite-user';
 import { Users } from './containers/users';
-import { ManagerCreateUser } from './containers/manager-create-user';
+import { AdminCreateUser } from './containers/admin-create-user';
 import { Settings } from './containers/settings';
 import { Properties } from './containers/properties';
 import { ValidateUser } from './containers/validate-user';
@@ -63,11 +64,14 @@ class App extends Component {
               <Switch>
                 <Route exact path='/settings' component={Settings} />
                 <Route exact path='/users' component={Users} />
-                <Route exact path='/invite' component={InviteUser} />
-                <Route exact path='/users/new' component={ManagerCreateUser} />
+                <Route exact path='/users/new' component={AdminCreateUser} />
                 <Route exact path='/users/:userId/edit' component={EditUser} />
+                <Route exact path='/invite' component={InviteUser} />
+
                 <Route exact path='/properties' component={Properties} />
-                <Route exact path='/create-property' component={CreateProperty} />
+                <Route exact path='/properties/new' component={CreateProperty} />
+                <Route exact path='/properties/:propertyId/edit' component={EditProperty} />
+
                 <Route path='/*' component={NotFound} />
               </Switch>
             </Private>

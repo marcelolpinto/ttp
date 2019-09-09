@@ -3,6 +3,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 const GREEN = '#009541';
 const BLUE = '#303F9F';
 const LIGHT_BLUE = '#394177';
+const LIGHTER_BLUE = '#E1F5FE';
 const RED = '#F44336';
 
 const BLACK = '#141414';
@@ -48,6 +49,7 @@ const theme = createMuiTheme({
     blue: {
       main: BLUE,
       light: LIGHT_BLUE,
+      lighter: LIGHTER_BLUE,
     },
     gray: {
       main: GRAY,

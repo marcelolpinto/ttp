@@ -7,7 +7,7 @@ import compose from 'recompose/compose';
 import { setUsersAction, showLoadingAction, closeLoadingAction } from '../../store/actions';
 import { BaseContainer } from '../../helpers';
 import "react-datepicker/dist/react-datepicker.css";
-import { ManagerCreateUserController } from './ManagerCreateUser.controller';
+import { AdminCreateUserController } from './AdminCreateUser.controller';
 import UserNotAllowed from '../../UserNotAllowed';
 
 const actions = { setUsersAction, showLoadingAction, closeLoadingAction };
@@ -57,9 +57,9 @@ const styles = theme => ({
   }
 });
 
-class ManagerCreateUser extends BaseContainer {
+class AdminCreateUser extends BaseContainer {
   constructor(props) {
-    super(props, ManagerCreateUserController);
+    super(props, AdminCreateUserController);
   }
 
   state = {
@@ -67,14 +67,13 @@ class ManagerCreateUser extends BaseContainer {
     email: '',
     password: '',
     confirm_password: '',
-    max_calories: '',
-    role: 'user',
+    role: 'client',
     
     errors: {}
   }
 
   render() {
-    const { classes, history, self } = this.props;
+    const { classes, history } = this.props;
     const { errors } = this.state;
     const { handleChange, handleSubmit, handleSelect } = this.controller;
 
@@ -82,6 +81,7 @@ class ManagerCreateUser extends BaseContainer {
       <UserNotAllowed>
         <div className={classes.wrapper}>
           <h1>New User</h1>
+          <p>This user will have direct access to the platform.</p>
           <form onSubmit={handleSubmit}>
             <TextField
               error={!!errors.name}
@@ -101,15 +101,6 @@ class ManagerCreateUser extends BaseContainer {
               value={this.state.email}
               onChange={handleChange}
             />
-            {this.state.role === 'user' && <TextField
-              error={!!errors.max_calories}
-              helperText={errors.max_calories}
-              id='max_calories'
-              label='Expected calories/day'
-              className='text-input'
-              value={this.state.max_calories}
-              onChange={e => handleChange(e, 'number')}
-            />}
             <br/>
             <FormControl>
               <InputLabel htmlFor="role">Role</InputLabel>
@@ -122,9 +113,9 @@ class ManagerCreateUser extends BaseContainer {
                   id: 'role',
                 }}
               >
-                <MenuItem value='user'>User</MenuItem>
-                {self && self.role === 'admin' ? <MenuItem value='manager'>Manager</MenuItem> : null}
-                {self && self.role === 'admin' ? <MenuItem value='admin'>Admin</MenuItem> : null}
+                <MenuItem value='client'>Client</MenuItem>
+                <MenuItem value='realtor'>Realtor</MenuItem>
+                <MenuItem value='admin'>Admin</MenuItem>
               </Select>
             </FormControl>
             <TextField
@@ -174,4 +165,4 @@ export default compose(
   withStyles(styles),
   withRouter,
   connect(mapStateToProps, actions)
-)(ManagerCreateUser);
+)(AdminCreateUser);

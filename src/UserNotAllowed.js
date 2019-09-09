@@ -6,14 +6,14 @@ import compose from 'recompose/compose';
 class UserNotAllowed extends Component {
   componentDidMount() {
     const { self, history } = this.props;
-    if(self && self.role === 'user')
-      return history.push(`/dashboard/${self.id}`);
+    if(self && self.role !== 'admin')
+      return history.push(`/properties`);
   }
     
   componentWillReceiveProps(nextProps) {
     const { self, history } = nextProps;
-    if(self && !this.props.self && self.role === 'user') 
-      return history.push(`/dashboard/${self.id}`);
+    if(self && !this.props.self && self.role !== 'admin') 
+      return history.push(`/properties`);
   }
 
 	render() {

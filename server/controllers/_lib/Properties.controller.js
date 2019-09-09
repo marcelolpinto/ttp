@@ -5,6 +5,7 @@ const {
   createPropertyValidation,
   updatePropertyValidation
 } = require('../../validation/properties.validation');
+const { TokenUtils } = require('../../utils/Token.utils');
 
 class PropertiesController {
   constructor({ users, properties }) {
@@ -15,131 +16,156 @@ class PropertiesController {
     this.list = this.list.bind(this);
     this.fetch = this.fetch.bind(this);
     this.update = this.update.bind(this);
-    this.delete = this.delete.bind(this);
+    this.remove = this.remove.bind(this);
   }
 
-  create(req, res) {
-    if(!Object.keys(req.body).length) {
-      return res.send(genResponse(codes.EMTPY_BODY, null));
+
+
+  async create(req, res) {
+    const { body } = req;
+    if(!Object.keys(body).length) {
+      return genResponse(codes.EMPTY_BODY);
     }
 
-    const validation = Joi.validate(req.body, createPropertyValidation);
-    if(validation.error) {
-      const details = validation.error.details.map(({ message }) => message);
-      res.send(genResponse(codes.VALIDATION_ERROR, null, details));
-      return;
+    try {
+      const property = await this.properties.create(body);
+      return genResponse(codes.CREATED, property);
     }
-
-    const { user_id } = req.params;
-    const body = {
-      ...req.body,
-      user_id
-    };
-
-    let statusCode, response;
-    this.properties.create(body, (err, response) => {
-      if(err) {
-        statusCode = { code: 'MONGO_CREATE_ERROR', msg: err.errors.role.name };
-        res.send(genResponse(statusCode, null));
-      } else {
-        res.send(genResponse(codes.OK, response));
-      }
-    });
+    catch(err) {
+      return genResponse(codes.BAD_REQUEST, null, err);
+    }
   }
+
+
 
   async list(req, res) {
-    const { user_id } = req.params;
+    const { query } = req;
 
-    if(!user_id) {
-      res.send(genResponse(codes.MISSING_PARAMS, null));
-      return;
+    if(!query || !query.token) {
+      return genResponse(codes.MISSING_PARAMS);
     }
 
+    let mongoQuery = {};
+
+    Object.keys(query).forEach(key => {
+      switch(key) {
+        case 'areaFrom':
+          if(!mongoQuery.area) mongoQuery.area = {};
+          mongoQuery.area.$gte = query.areaFrom;
+          break;
+        case 'areaTo':
+          if(!mongoQuery.area) mongoQuery.area = {};
+          mongoQuery.area.$lte = query.areaTo;
+          break;
+        case 'bedroomsFrom':
+          if(!mongoQuery.bedrooms) mongoQuery.bedrooms = {};
+          mongoQuery.bedrooms.$gte = query.bedroomsFrom;
+          break;
+        case 'bedroomsTo':
+          if(!mongoQuery.bedrooms) mongoQuery.bedrooms = {};
+          mongoQuery.bedrooms.$lte = query.bedroomsTo;
+          break;
+        case 'priceFrom':
+          if(!mongoQuery.price) mongoQuery.price = {};
+          mongoQuery.price.$gte = query.priceFrom;
+          break;
+        case 'priceTo':
+          if(!mongoQuery.price) mongoQuery.price = {};
+          mongoQuery.price.$lte = query.priceTo;
+          break;
+
+        default: break;
+      }
+    })
+
+    let decoded;
+
+    try {
+      decoded = TokenUtils.verify(query.token);
+    }
+    catch(e) {
+      return genResponse(codes.INVALID_TOKEN);
+    }
+
+    if(decoded.role === 'client') mongoQuery.isRented = false;
+    
     let response;
-    const properties = await this.properties.find({ user_id }).sort({ date: -1 });
 
-    if(!properties) response = genResponse({
-      code: 'MONGO_LIST_ERROR',
-      msg: 'list properties error.'
-    }, null);
-    else response = genResponse(codes.OK, properties);
-
-    res.send(response);
+    try {
+      const properties = await this.properties.find(mongoQuery).populate('realtorId');
+      return genResponse(codes.OK, properties);
+    }
+    catch(err) {
+      return genResponse(codes.INTERNAL_SERVER_ERROR, null, err);
+    }
   }
+
+
+
 
   async fetch(req, res) {
-    const { user_id, property_id } = req.params;
-    
-    if(!user_id || !property_id) {
-      res.send(genResponse(codes.MISSING_PARAMS, null))
-      return;
+    const { property_id } = req.params;
+
+    if(!property_id) {
+      return genResponse(codes.MISSING_PARAMS);
     }
 
-    let response;
-    const property = await this.properties.findOne({ user_id, _id: property_id }, err => {
-      if(err) {
-        res.send({ code: 'MONGO_ERR', msg: err });
-        return;
-      }
-    });
-
-    if(!property) response = genResponse({
-      code: 'MONGO_FETCH_ERROR',
-      msg: 'fetch property error.'
-    }, null);
-    else response = genResponse(codes.OK, property);
-
-    res.send(response)
+    try {
+      const property = await this.properties.findOne({ _id: property_id });
+      return genResponse(codes.OK, property);
+    }
+    catch(err) {
+      return genResponse(codes.PROPERTY_NOT_FOUND);
+    }
   }
+
+
+
 
   async update(req, res) {
-    const { user_id, property_id } = req.params;
-    const { body } = req
-   
-    if(!user_id || !property_id) {
-      res.send(genResponse(codes.MISSING_PARAMS, null))
-      return;
-    }
+    const { property_id } = req.params;
+    const { body } = req;
 
     if(!Object.keys(body).length) {
-      res.send(genResponse(codes.EMTPY_BODY, null));
-      return;
+      return genResponse(codes.EMPTY_BODY);
     }
 
-    const validation = Joi.validate(body, createPropertyValidation);
-    if(validation.error) {
-      const details = validation.error.details.map(({ message }) => message);
-      res.send(genResponse(codes.VALIDATION_ERROR, null, details));
-      return;
+    if(!property_id) {
+      return genResponse(codes.MISSING_PARAMS);
     }
 
-    this.properties.update({ _id: property_id }, { $set: body }, (err, response) => {
-      if(err) {
-        const statusCode = { code: 'MONGO_UPDATE_ERROR', msg: err.errors.role.name };
-        res.send(genResponse(statusCode, null));
-      } else {
-        res.send(genResponse(codes.OK, response));
-      }
-    });
+    try {
+      await this.properties.updateOne({ _id: property_id }, { $set: body });
+      
+      const property = await this.properties.findOne({ _id: property_id });
+      return genResponse(codes.OK, property);
+    }
+    catch(err) {
+      return genResponse(codes.UNPROCESSABLE_ENTITY, null, err);
+    }
+
   }
 
-  delete(req, res) {
-    const { user_id, property_id } = req.params;
 
-    if(!user_id || !property_id) {
-      res.send(genResponse(codes.MISSING_PARAMS, null))
-      return;
+
+  async remove(req, res) {
+    const { property_id } = req.params;
+
+    if(!property_id) {
+      return genResponse(codes.MISSING_PARAMS);
     }
 
-    let statusCode;
-    this.properties.deleteOne({ _id: property_id }, (err, response) => {
-      if(err) {
-        statusCode = { code: 'MONGO_DELETE_ERROR', msg: err.errors.role.name };
-        res.send(genResponse(statusCode, null));
+    try {
+      await this.properties.deleteOne({ _id: property_id });
+      return genResponse(codes.OK, { msg: `Object ${property_id} removed successfully.`, data: true });
+    }
+    catch(err) {
+      if(err.name === `CastError`) {
+        return genResponse(codes.INVALID_ID);
       } else {
-        res.send(genResponse(codes.OK, response));
+        return genResponse(codes.UNPROCESSABLE_ENTITY);
       }
-    });
+    }
   }
 }
 

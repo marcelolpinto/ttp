@@ -83,19 +83,12 @@ class Users extends BaseContainer {
 
   state = {
     toTable: [],
-    sort: '-date',
-    filters: {
-      dateFrom: null,
-      dateTo: null,
-      timeFrom: null,
-      timeTo: null
-    }
+    sort: '-date'
   }
 
   componentDidMount() {
     if(this.props.users) {
-      const all = this.props.self.role === 'admin' ? 'all' : 'allUsers';
-      this.setState({ toTable: this.props.users[all] });
+      this.setState({ toTable: this.props.users.all });
     }
   }
 
@@ -108,7 +101,7 @@ class Users extends BaseContainer {
 
   _renderTable() {
     const { toTable, sort } = this.state;
-    const { handleSort, handleDeleteUser, handleViewUser } = this.controller;
+    const { handleSort, handleDeleteUser } = this.controller;
     const { users, self, openModalAction, history } = this.props;
 
     if(!users || !self) return <div>loading...</div>;
@@ -136,14 +129,15 @@ class Users extends BaseContainer {
           </tr>
         </thead>
         <tbody>
-          {toTable.map(({ id, name, max_calories, email, role }) => {
+          {toTable.map(({ id, name, status, email, role }) => {
             return (
               <tr key={id}>
-                <td>{name}</td>
+                <td>{name || '-'}</td>
                 <td>{email}</td>
+                <td style={{ color: status === 'blocked' ? 'red' : 'black' }}>{status}</td>
                 <td>{role}</td>
                 <td>
-                  <Icon onClick={e => {
+                  <Icon id={`edit-${id}`} onClick={e => {
                     e.stopPropagation();
                     if(id === self.id) return toast('Go to the Settings Menu if you want to edit your profile.');
                     history.push(`/users/${id}/edit`);
@@ -152,7 +146,7 @@ class Users extends BaseContainer {
                   </Icon>
                 </td>
                 <td>
-                  <Icon onClick={e => {
+                  <Icon id={`delete-${id}`} onClick={e => {
                     e.stopPropagation();
                     openModalAction({
                       description: self.id === id ?

@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import { withStyles, Button, TextField } from '@material-ui/core';
 import compose from 'recompose/compose';
 import { BaseContainer } from '../../helpers';
@@ -96,17 +97,17 @@ class Login extends BaseContainer {
             </Button>
             <br/>
             <GoogleLogin
-              clientId="478083504438-eqa86sfd32fab97o705l2d6sprroc8j8.apps.googleusercontent.com"
+              clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
               buttonText="Sign In or Login"
               onSuccess={handleGoogleSignIn}
               onFailure={res => console.error('google login failure:', res)}
-              cookiePolicy={'single_host_origin'}
+              cookiePolicy='single_host_origin'
             />
+            <br/>
+            <br/>
             <FacebookLogin
-              appId="995398630792024"
+              appId={process.env.REACT_APP_FACEBOOK_APP_ID}
               fields="name,email,picture"
-              onClick={(e) => console.log('clicked', e)}
-              
               callback={handleFacebookSignIn} />
           </form>
         </div>
@@ -118,6 +119,7 @@ class Login extends BaseContainer {
 const mapStateToProps = state => ({});
 
 export default compose(
+  withRouter,
   withStyles(styles),
   connect(mapStateToProps, actions)
 )(Login);

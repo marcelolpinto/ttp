@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { withStyles, Button, TextField, FormControl, InputLabel, Select, MenuItem, Avatar } from '@material-ui/core';
@@ -9,8 +9,7 @@ import { BaseContainer } from '../../helpers';
 import "react-datepicker/dist/react-datepicker.css";
 import { EditUserController } from './EditUser.controller';
 import UserNotAllowed from '../../UserNotAllowed';
-
-const NO_IMAGE_URL = 'https://cdn4.iconfinder.com/data/icons/eldorado-user/40/user-128.png';
+import { NO_IMAGE_URL } from '../../constants';
 
 const actions = { setUsersAction, showLoadingAction, closeLoadingAction };
 
@@ -70,7 +69,12 @@ const styles = theme => ({
         marginTop: 2 * theme.unit,
         marginLeft: 2 * theme.unit
       }
-    }
+    },
+    '& button#reactivate': {
+      ...theme.buttons.primary,
+      display: 'inline-block',
+      marginTop: 2 * theme.unit
+    },
   }
 });
 
@@ -104,7 +108,8 @@ class EditUser extends BaseContainer {
         name: user.name,
         email: user.email,
         role: user.role,
-        imageUrl: user.imageUrl
+        imageUrl: user.imageUrl,
+        status: user.status,
       });
     }
   }
@@ -121,7 +126,8 @@ class EditUser extends BaseContainer {
         name: user.name,
         email: user.email,
         role: user.role,
-        imageUrl: user.imageUrl
+        imageUrl: user.imageUrl,
+        status: user.status,
       });
     }
   }
@@ -129,7 +135,14 @@ class EditUser extends BaseContainer {
   render() {
     const { classes, history, self } = this.props;
     const { errors } = this.state;
-    const { handleChange, handleSubmit, handleUpload, handleSelect, handleChangePassword } = this.controller;
+    const {
+      handleChange,
+      handleSubmit,
+      handleUpload,
+      handleSelect,
+      handleChangePassword,
+      handleReactivate
+    } = this.controller;
 
     return (
       <UserNotAllowed>
@@ -150,7 +163,7 @@ class EditUser extends BaseContainer {
             src={this.state.imageUrl || NO_IMAGE_URL}
           />
 
-          <form onSubmit={handleSubmit}>
+          <form id='info' onSubmit={handleSubmit}>
             <TextField
               error={!!errors.name}
               helperText={errors.name}
@@ -196,8 +209,25 @@ class EditUser extends BaseContainer {
               Save
             </Button>
           </form>
+
+          {
+            this.state.status === 'blocked' &&
+            <Fragment>
+              <h3 style={{ marginTop: 32 }}>Reactivate this user</h3>
+              <Button
+                type='submit'
+                id='reactivate'
+                className='primary'
+                onClick={handleReactivate}
+              >
+                Reactivate
+              </Button>
+            </Fragment>
+          }
+
           <h3 style={{ marginTop: 32 }}>Change this user's password</h3>
-          <form>
+
+          <form id='password'>
             <TextField
               error={!!errors.password}
               helperText={errors.password}

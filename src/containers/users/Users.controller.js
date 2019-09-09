@@ -2,7 +2,6 @@ import sortBy from 'lodash.sortby';
 
 import { BaseController } from "../../helpers";
 import { UsersRepository } from '../../repositories';
-import { toast } from 'react-toastify';
 
 export class UsersController extends BaseController {
   constructor({ toState, getState, getProps }) {
@@ -28,8 +27,8 @@ export class UsersController extends BaseController {
 
   handleSort(id) {
     let { sort } = this.getState();
-    const { users, self } = this.getProps();
-    const selection = self.role === 'admin' ? users.all : users.allUsers;
+    const { users } = this.getProps();
+    const selection = users.all;
 
     if(id.startsWith('-')) id = id.slice(1);
 
@@ -55,9 +54,11 @@ export class UsersController extends BaseController {
       closeLoadingAction,
     } = this.getProps();
 
+    const token = window.localStorage.getItem('token');
+
     closeModalAction();
     showLoadingAction();
-    const result = await this.usersRepo.remove(id);
+    const result = await this.usersRepo.remove(id, token);
     closeLoadingAction();
     
     if(!result.err) {
@@ -70,10 +71,8 @@ export class UsersController extends BaseController {
       const newUsers = users.remove(id);
       setUsersAction(newUsers);
 
-      const toTable = self.role === 'admin' ? newUsers.all : newUsers.allUsers;
+      const toTable = newUsers.all;
       this.toState({ toTable })
-    } else {
-      toast(result.err.msg);
     }
   }
 }
