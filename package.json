@@ -22,7 +22,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.sortby": "^4.7.0",
     "moment": "^2.24.0",
-    "mongoose": "^5.6.4",
+    "mongoose": "^5.7.5",
     "multiparty": "^4.2.1",
     "nodemailer": "^6.3.0",
     "prop-types": "^15.7.2",
