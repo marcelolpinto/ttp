@@ -18,7 +18,7 @@
     "glamor": "^2.20.40",
     "ignore-styles": "^5.0.1",
     "joi": "^14.3.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.sortby": "^4.7.0",
     "moment": "^2.24.0",
